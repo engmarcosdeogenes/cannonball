@@ -62,6 +62,32 @@ claude plugin marketplace add .
 claude plugin install cannonball@cannonball
 ```
 
+O acervo é criado em `~/.cannonball` na primeira vez que uma skill roda, já com as
+três peças de exemplo dentro.
+
+### O que vem na caixa
+
+Três componentes originais, e eles existem tanto para a primeira busca devolver
+alguma coisa quanto para servir de **modelo de ficha bem escrita**:
+
+| Peça | O que resolve |
+|---|---|
+| `kit-agendamento` | serviço → data/hora → contato, com expediente, duração e antecedência como configuração |
+| `kit-calendario` | seleção de data com teclado, idioma via `Intl`, disponibilidade por predicado |
+| `kit-mapa` | localização sem chave de API, na paleta do site por filtro CSS |
+
+Vêm com **11 armadilhas registradas** — sobreposição de horário que dobra a agenda,
+`new Date()` durante a renderização quebrando hidratação entre servidor UTC e
+visitante UTC−3, iframe de mapa roubando o scroll da página. Busque por
+`agendamento` e leia: é o formato que o resto do acervo deve seguir.
+
+Nenhuma tem dependência npm nem asset externo. Toda a aparência sai de variável CSS
+(`--kit-*`, com fallback nos tokens do site e, por último, `currentColor`), e texto e
+regra de negócio saem de prop. **Trocar de cliente é trocar configuração.**
+
+São suas depois de copiadas: edite, melhore ou apague. Nada volta a sobrescrever.
+
+
 ### Vincule a sua pasta — é o primeiro passo, e o mais fácil de esquecer
 
 Sem isso o acervo nasce em `~/.cannonball`, que serve para experimentar mas quase
@@ -121,45 +147,58 @@ A ordem de 2 e 3 não é preciosismo: escolher o design system primeiro faz a co
 fonte virem de brinde, e é exatamente assim que se chega no automático — e como se
 descobre na entrega que a fonte é paga.
 
-**Fora do fluxo:** `/kit-prompt` quando você quer texto para levar a outra ferramenta
-em vez de código; `/kit-adaptar` quando te mandaram um prompt de fora.
-
 O passo 6 é o que fecha o ciclo. Sem ele o plugin é uma biblioteca parada; com ele,
 cada projeto deixa o próximo mais rápido.
 
-### O que vem na caixa
+## As duas que trabalham com prompt
 
-Três componentes originais, e eles existem tanto para a primeira busca devolver
-alguma coisa quanto para servir de **modelo de ficha bem escrita**:
+Nem todo trabalho termina em código escrito aqui. Metade do que circula em web design
+hoje é **prompt** — o brief que você leva ao v0, o texto que alguém te mandou no
+Twitter, a spec que você guarda para reusar. Duas skills existem só para isso, e elas
+são as portas de entrada e de saída do acervo.
 
-| Peça | O que resolve |
-|---|---|
-| `kit-agendamento` | serviço → data/hora → contato, com expediente, duração e antecedência como configuração |
-| `kit-calendario` | seleção de data com teclado, idioma via `Intl`, disponibilidade por predicado |
-| `kit-mapa` | localização sem chave de API, na paleta do site por filtro CSS |
+### `/kit-prompt` — o acervo vira prompt
 
-Vêm com **11 armadilhas registradas** — sobreposição de horário que dobra a agenda,
-`new Date()` durante a renderização quebrando hidratação entre servidor UTC e
-visitante UTC−3, iframe de mapa roubando o scroll da página. Busque por
-`agendamento` e leia: é o formato que o resto do acervo deve seguir.
+Entrevista sobre o site e devolve um **prompt de construção completo**, no padrão dos
+que já funcionaram: stack, fontes com licença conferida, paleta com contraste medido,
+estrutura seção a seção, medidas exatas e **proibições explícitas**.
 
-Nenhuma tem dependência npm nem asset externo. Toda a aparência sai de variável CSS
-(`--kit-*`, com fallback nos tokens do site e, por último, `currentColor`), e texto e
-regra de negócio saem de prop. **Trocar de cliente é trocar configuração.**
+O resultado é texto. Você leva para o v0, o Lovable, o Cursor, outro modelo — ou
+guarda no acervo para a próxima vez.
 
-São suas depois de copiadas: edite, melhore ou apague. Nada volta a sobrescrever.
-
-Para guardá-lo em outro lugar (um disco maior, uma pasta sincronizada, um repositório
-privado seu):
-
-```bash
-export CANNONBALL_ACERVO="/caminho/para/o/acervo"    # macOS/Linux, no ~/.zshrc
-setx CANNONBALL_ACERVO "C:\caminho\para\o\acervo"    # Windows, reabra o terminal
+```
+"gera um prompt pra uma landing de clínica"    →  o texto, pronto para levar
 ```
 
-A variável vence tudo. Ela existe porque o plugin instalado é uma **cópia** em
-`~/.claude/plugins/cache/`, apagada a cada atualização — o acervo precisa morar fora
-dela.
+O que separa isso de pedir um prompt a qualquer modelo: ele é **alimentado pelo seu
+acervo**. A paleta sai da `kit-cor` com contraste já medido, a fonte sai da `kit-tipo`
+com licença já conferida, a estrutura sai de um template que já rodou. Prompt genérico
+devolve site genérico.
+
+### `/kit-adaptar` — o prompt de fora vira seu
+
+O caminho inverso, e o mais subestimado. Alguém te manda um prompt em inglês, sem
+contexto, que constrói sabe-se lá o quê. Esta skill lê e devolve **em português**:
+
+- que tipo de site é, e qual o escopo real (hero solto ou landing inteira)
+- seção por seção, o que cada uma faz
+- a técnica por trás (hover, cursor, scroll, WebGL, vídeo) e o que ela custa
+- stack e dependências
+- **o mapa de assets** — o caminho exato de cada arquivo que o prompt vai pedir
+
+Essa última linha é a que economiza a tarde: prompt de fora sempre assume mídia que
+você não tem. O que faltar vira placeholder descrito, não erro no meio do build.
+
+Depois ela **torce o prompt para o seu projeto** — sua stack, seu setor, seu cliente.
+Aceita print ou vídeo do site original junto, se você tiver.
+
+```
+[cola um prompt em inglês]  →  "o que é isso?"  →  "adapta pra clínica"
+```
+
+**As duas funcionam com o acervo vazio.** A `kit-adaptar` não depende de peça nenhuma,
+e a `kit-prompt` fica melhor com acervo mas não precisa dele. São o caminho mais curto
+para tirar valor do plugin no primeiro dia — e o que sair bom delas, você ingere.
 
 ## O exemplo
 
@@ -179,8 +218,8 @@ de cinco jeitos. Nenhum dá erro. Todos viraram armadilha nas peças de origem.
 |---|---|
 | `kit-buscar` | "que hero eu tenho pra clínica?" — e sozinha, antes de construir qualquer seção |
 | `kit-montar` | "monta uma landing pra joalheria" — do briefing ao código |
-| `kit-prompt` | "gera um prompt pra esse site" — do briefing ao **texto**, para levar a outra ferramenta |
-| `kit-adaptar` | "o que esse prompt constrói?" — lê prompt de fora e adapta ao seu projeto |
+| **`kit-prompt`** | "gera um prompt pra esse site" — do briefing ao **texto**, para levar ao v0, Lovable, Cursor. [Detalhe ↑](#as-duas-que-trabalham-com-prompt) |
+| **`kit-adaptar`** | "o que esse prompt constrói?" — lê prompt de fora, traduz, mapeia os assets e adapta ao seu projeto. [Detalhe ↑](#as-duas-que-trabalham-com-prompt) |
 | `kit-cor` | "define a paleta", "está tudo no automático" — decide a cor **antes** do design system |
 | `kit-tipo` | "que fonte usar", "essa fonte é paga?" — licença, substituto livre, par e escala |
 | `kit-otimizar-3d` | "a cena trava no celular" — e antes de entregar qualquer projeto com WebGL |
