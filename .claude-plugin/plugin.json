@@ -1,0 +1,20 @@
+{
+  "name": "cannonball",
+  "description": "Guarda as peças de site que você já fez e as encontra de volta antes de gerar qualquer coisa do zero. O acervo é seu e começa com três peças de exemplo: templates, design systems, componentes, animações, efeitos e prompts que você ingere. Busca, monta combinando peças, decide cor e tipografia com contraste e licença medidos, e registra as armadilhas que cada peça já causou.",
+  "version": "2.2.0",
+  "author": {
+    "name": "Hare Eckert",
+    "email": "harebeats@gmail.com"
+  },
+  "keywords": [
+    "landing-page",
+    "acervo",
+    "componentes",
+    "nextjs",
+    "tailwind",
+    "webgl",
+    "scroll",
+    "biblioteca"
+  ],
+  "license": "MIT"
+}

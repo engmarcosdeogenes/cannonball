@@ -1,0 +1,178 @@
+/* ---------------------------------------------------------------------------
+   Tokens da Clínica Vértice.
+   Os valores NÃO foram escolhidos no olho: saíram de
+     cannonball/scripts/cor.py  --paleta --fundo #0d1117 --tinta #eef2f5 --acento #4bb3a5
+     cannonball/scripts/tipo.py --escala --base 17 --razao 1.25
+   O contraste de cada par está medido no README, com o comando que mede.
+--------------------------------------------------------------------------- */
+@import "../components/kit-calendario/calendario.css";
+@import "../components/kit-agendamento/agendamento.css";
+@import "../components/kit-mapa/mapa.css";
+
+:root {
+  /* cor, por papel */
+  --bg: #0d1117;
+  --bg-alt: #161a20;
+  --surface: #1d2127;
+  --surface-raised: #262a2f;
+  --fg: #eef2f5;
+  --fg-suave: #9fa3a7;
+  --fg-apagado: #676b70;
+  --linha: #2c3036;
+  --acento: #4bb3a5;
+  --acento-fg: #000000;
+  --glow: #76c5bb;
+
+  /* escala modular: base 17px, razão 1.25 */
+  --t--1: 0.85rem;
+  --t-0: 1.0625rem;
+  --t-1: 1.328rem;
+  --t-2: 1.66rem;
+  --t-3: 2.075rem;
+  --t-4: 2.594rem;
+  --t-5: 3.242rem;
+
+  --raio: 0.625rem;
+  --medida: 62ch;
+
+  /* Ponte para os nomes que as peças do cannonball já procuram sozinhas.
+     Com isto, nenhuma delas precisa de configuração de cor. */
+  --color-bg: var(--surface);
+  --color-fg: var(--fg);
+  --color-accent: var(--acento);
+  --color-accent-fg: var(--acento-fg);
+  --radius: var(--raio);
+  --font-sans: var(--font-corpo);
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-corpo), system-ui, sans-serif;
+  font-size: var(--t-0);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3 {
+  font-family: var(--font-display), Georgia, serif;
+  font-weight: 400;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+a { color: inherit; }
+
+.envelope {
+  width: min(100% - 2.5rem, 68rem);
+  margin-inline: auto;
+}
+
+/* ARMADILHA: `section { padding-block: … }` solto alcança o <section> INTERNO
+   do kit-agendamento e injeta 128px dentro do componente — um buraco no meio do
+   painel que parece defeito da peça e é do site. Peça copiada traz a marcação
+   dela junto; seletor de elemento não sabe disso. Escope ao nível de página. */
+main > section,
+main > header { padding-block: clamp(4rem, 10vw, 8rem); }
+
+.rotulo {
+  font-size: var(--t--1);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  /* --fg-suave, não --fg-apagado: o apagado mede 3.53:1, que só passa em
+     texto grande. Rótulo é 13.6px. Ver o README. */
+  color: var(--fg-suave);
+  margin: 0 0 1rem;
+}
+
+.lead {
+  font-size: var(--t-1);
+  color: var(--fg-suave);
+  max-width: var(--medida);
+}
+
+/* ---- hero: tipográfico. Nenhuma imagem, nenhum vídeo, nenhum canvas. ---- */
+.hero {
+  min-height: 88svh;
+  display: grid;
+  align-content: center;
+  position: relative;
+  overflow: hidden;
+  border-bottom: 1px solid var(--linha);
+}
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: auto -20% -60% 30%;
+  height: 70vh;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--acento) 22%, transparent), transparent);
+  pointer-events: none;
+}
+.hero h1 {
+  font-size: clamp(2.75rem, 9vw, 6.5rem);
+  max-width: 16ch;
+  margin-block: 0.5rem 1.5rem;
+}
+.hero h1 em { font-style: italic; color: var(--acento); }
+
+.acoes { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 2.25rem; }
+.botao {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.85rem 1.5rem;
+  border-radius: var(--raio);
+  border: 1px solid var(--linha);
+  text-decoration: none;
+  font-size: var(--t-0);
+  transition: background-color 160ms, border-color 160ms;
+}
+.botao--forte { background: var(--acento); color: var(--acento-fg); border-color: var(--acento); }
+.botao--forte:hover { background: var(--glow); border-color: var(--glow); }
+.botao:hover { border-color: var(--fg-suave); }
+
+/* ---- serviços ---- */
+.grade { display: grid; gap: 1px; background: var(--linha); border: 1px solid var(--linha);
+         border-radius: var(--raio); overflow: hidden; margin-top: 2.5rem;
+         grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); }
+.cartao { background: var(--surface); padding: 1.75rem; }
+.cartao h3 { font-size: var(--t-2); margin-bottom: 0.5rem; }
+.cartao p { color: var(--fg-suave); margin: 0; font-size: var(--t--1); line-height: 1.7; }
+.cartao .preco { display: block; margin-top: 1rem; color: var(--acento); font-size: var(--t-0); }
+
+/* ---- seções que hospedam peças do cannonball ---- */
+.secao-kit { background: var(--bg-alt); border-block: 1px solid var(--linha); }
+
+/* A ponte precisa alcançar TAMBÉM .kit-cal: o calendário redeclara
+   --kit-fg-suave e --kit-fg-apagado dentro do próprio bloco, e declaração
+   local vence herança. Sem os dois seletores, as iniciais dos dias da semana
+   caem para ~3,3:1 sobre este fundo e reprovam AA sem avisar.
+   (armadilha registrada em kit-agendamento) */
+.secao-agendamento,
+.secao-agendamento .kit-cal {
+  --kit-fg-suave: color-mix(in srgb, var(--fg) 72%, transparent);
+  --kit-fg-apagado: color-mix(in srgb, var(--fg) 62%, transparent);
+  --kit-fonte-titulo: var(--font-display);
+}
+
+/* O cartão de endereço do mapa usa background: var(--color-bg). Aqui
+   --color-bg é --surface, então o cartão fica sólido. Se algum dia o
+   :root passar --color-bg para transparent, o endereço some sobre os tiles.
+   (armadilha registrada em kit-mapa) */
+.secao-mapa { --color-bg: var(--surface); }
+
+/* A altura NÃO é chutada: é a do componente montado no passo 1, medida no
+   navegador. Esqueleto mais curto que o conteúdo faz a página pular quando o
+   efeito monta — que é metade do motivo de existir o esqueleto. */
+.esqueleto { min-height: 31rem; border-radius: var(--raio); background: var(--surface); }
+
+footer { border-top: 1px solid var(--linha); padding-block: 3rem; color: var(--fg-suave);
+         font-size: var(--t--1); }
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}

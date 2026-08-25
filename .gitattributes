@@ -1,0 +1,4 @@
+# seed/acervo/index.json e GERADO por scripts/indexar.py a partir dos item.json
+# de cada peca. Resolver conflito nele na mao nao faz sentido: regenere com
+#   CANNONBALL_ACERVO="$(pwd)/seed" python3 scripts/indexar.py
+seed/acervo/index.json -diff merge=ours linguist-generated=true

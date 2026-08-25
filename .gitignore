@@ -1,0 +1,33 @@
+# O ACERVO NÃO É DO PLUGIN. Ele é material do usuário — peça de terceiro,
+# projeto de cliente, prompt comprado — e não é dele para redistribuir.
+# Mora fora do repositório (~/.sitekit por padrão, ou SITEKIT_ACERVO).
+#
+# Num repositório de trabalho onde o acervo JÁ está versionado, esta linha não
+# tem efeito: o git continua rastreando o que já rastreava. Ela existe para o
+# repositório público, derivado por scripts/publicar.py.
+#
+# A barra inicial importa: sem ela o padrão casa em QUALQUER nível e engole
+# seed/acervo/, que é o exemplo que precisa viajar junto com o plugin.
+/acervo/
+
+# Artefatos de importação em massa. Contêm o material bruto do usuário.
+_fonte/
+_extract.jsonl
+_enriquecimento_*.json
+_lote_*.json
+_armadilhas_*.json
+_tags_funcao_propostas.json
+_digest.txt
+_duplicatas.json
+
+# Caminho absoluto da máquina. Use a variável SITEKIT_ACERVO.
+sitekit.config.json
+
+__pycache__/
+*.pyc
+.DS_Store
+
+# o exemplo é um projeto Next de verdade
+node_modules/
+.next/
+next-env.d.ts

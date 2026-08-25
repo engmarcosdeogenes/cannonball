@@ -1,0 +1,28 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "cannonball",
+  "description": "Acervo pessoal de peças de site: guarda o que você já fez e encontra de volta antes de gerar do zero.",
+  "owner": {
+    "name": "Hare Eckert",
+    "email": "harebeats@gmail.com"
+  },
+  "plugins": [
+    {
+      "name": "cannonball",
+      "source": "./",
+      "skills": [
+        "./skills/kit-buscar",
+        "./skills/kit-montar",
+        "./skills/kit-prompt",
+        "./skills/kit-adaptar",
+        "./skills/kit-ingerir",
+        "./skills/kit-curar",
+        "./skills/kit-otimizar-3d",
+        "./skills/kit-cor",
+        "./skills/kit-tipo"
+      ],
+      "description": "Busca no seu acervo antes de gerar do zero. O acervo começa vazio e cresce a cada ingestão — templates rodáveis, design systems, componentes, animações, efeitos WebGL e prompts de página. Monta sites combinando peças, porta de Vite para Next.js, decide cor e tipografia com contraste e licença de fonte medidos, otimiza cena 3D para celular e salva composições como receitas reutilizáveis.",
+      "category": "design"
+    }
+  ]
+}
