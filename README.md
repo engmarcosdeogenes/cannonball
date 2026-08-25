@@ -1,20 +1,38 @@
+<div align="center">
+
 # cannonball
 
-Plugin do Claude Code que **guarda as peças de site que você já fez e as encontra de
-volta** — antes de qualquer coisa ser gerada do zero.
+**Você não começa do zero. Você já chega com impulso.**
+
+Plugin do Claude Code que guarda as peças de site que você já fez — e as encontra
+de volta, antes de qualquer coisa ser gerada outra vez.
+
+![Claude Code](https://img.shields.io/badge/Claude_Code-plugin-D97757?style=flat-square)
+![Python 3](https://img.shields.io/badge/Python_3-sem_dependência-3776AB?style=flat-square)
+![9 skills](https://img.shields.io/badge/skills-9-4bb3a5?style=flat-square)
+![MIT](https://img.shields.io/badge/licença-MIT-555?style=flat-square)
+
+</div>
+
+<br>
+
+[![SHUI, montada a partir do acervo](.github/hero.jpg)](exemplo/)
+
+<div align="center">
+<sub><b>Acima:</b> uma loja de 81 produtos e 99 páginas, montada de três peças do
+acervo. <a href="exemplo/">O caso completo, com os quatro bugs que a montagem
+achou →</a></sub>
+</div>
+
+<br>
 
 O acervo é **seu**, e começa quase vazio: vêm três peças de exemplo e mais nada.
 Você alimenta com o que já tem — prompt, componente, efeito, design system, projeto
 inteiro — e a partir daí as skills decidem a partir do que existe ali dentro, não de
 uma lista fixa escrita por outra pessoa.
 
-## O problema
-
-Uma pasta com 157 arquivos chamados `bend.md`, `peel.md`, `vex.md`, `skiper52.tsx`.
-Nenhum nome diz o que faz, então o único jeito de achar algo é abrir um por um — e
-por isso nada é reaproveitado.
-
-O valor não está nos arquivos. Está no índice.
+Nenhuma skill carrega número fixo. Todas leem o acervo na hora, então o mesmo motor
+serve quem tem três peças e quem tem mil — e fica melhor a cada uma que entra.
 
 ## O ciclo
 
@@ -143,14 +161,17 @@ A variável vence tudo. Ela existe porque o plugin instalado é uma **cópia** e
 `~/.claude/plugins/cache/`, apagada a cada atualização — o acervo precisa morar fora
 dela.
 
-## Um exemplo completo
+## O exemplo
 
-[`exemplo/clinica-vertice/`](exemplo/) — landing de clínica montada **só com as três
-peças que vêm na instalação**, com cada decisão de cor e tipografia saída de um
-comando (e o comando registrado), e as **quatro armadilhas** que a montagem encontrou.
+[**`exemplo/`**](exemplo/) — a **SHUI**, loja de streetwear com 81 produtos, 765
+variantes e 99 páginas estáticas, montada de três peças do acervo: um template deu as
+rotas e o carrinho, outro deu a ficha de produto, um design system deu a identidade.
 
-É o ciclo inteiro num lugar só: buscar → montar → tropeçar → registrar. As três peças
-chegaram com 11 armadilhas e saíram do exemplo com 13.
+E os **quatro bugs** que a montagem encontrou — SKU repetido entre tamanhos, `opcao1`
+que não é a cor, `next/link` baixando doze páginas por clique, a mesma cor cadastrada
+de cinco jeitos. Nenhum dá erro. Todos viraram armadilha nas peças de origem.
+
+É o ciclo inteiro num lugar só: **buscar → montar → tropeçar → registrar**.
 
 ## As skills
 

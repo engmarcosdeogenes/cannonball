@@ -1,150 +1,117 @@
-# exemplo — o que o cannonball entrega numa instalação limpa
+# exemplo — SHUI, um site inteiro montado a partir do acervo
 
-[`clinica-vertice/`](clinica-vertice/) é uma landing page de clínica odontológica
-montada **inteiramente com as três peças que vêm na instalação** — `kit-agendamento`,
-`kit-calendario` e `kit-mapa` — mais código escrito na hora.
+Loja de streetwear em Next 16. **81 produtos, 765 variantes, 99 páginas estáticas.**
+Vitrine autoral por cima do checkout da Nuvemshop, para não perder o meio de pagamento
+nem o indexado.
 
-Nenhuma peça de acervo particular entrou aqui. É reproduzível por quem clonar hoje.
+Não foi escrita do zero. Ela é a receita **`shui-vitrine-nuvemshop`** — três peças do
+acervo compostas, e cada decisão saiu de uma busca.
+
+![home](telas/home.jpg)
+
+---
+
+## As três peças, e o que cada uma entregou
 
 ```bash
-cd clinica-vertice && npm install && npm run dev
+python scripts/buscar.py "loja de roupa streetwear catalogo"
 ```
 
-![hero](clinica-vertice/docs/hero.png)
+| Peça | Família | O que veio dela |
+|---|---|---|
+| **`format-archive`** | template | rotas `[slug]`, catálogo, carrinho em Zustand — a parte chata, pronta |
+| **`nrmlss`** | template | a ficha de produto: hero pinado com as fotos subindo no scrub, coluna de compra parada |
+| **`ds-filling-pieces`** | design-system | a identidade: monocromático, tipografia carregando a marca, foto como única cor |
+
+O eixo que faz isso funcionar: **template dá a estrutura, design system dá a
+identidade.** São independentes, então a mesma estrutura serve o próximo cliente com
+outra cara, e a mesma identidade serve outra estrutura.
+
+Aqui o `ds-filling-pieces` só precisou ser **portado**, não decidido — a SHUI já tinha
+fotografia forte e identidade fechada. É o caso em que o acervo economiza mais.
 
 ---
 
-## O ponto: nada foi escolhido no olho
+## O que saiu
 
-Cada decisão saiu de um comando, e o comando está registrado.
-
-**A paleta** veio de `scripts/cor.py`, que deriva 11 papéis a partir de três decisões
-(fundo, tinta, acento) e mede WCAG em cada par que existe na tela:
-
-```
-$ python scripts/cor.py --paleta --fundo "#0d1117" --tinta "#eef2f5" --acento "#4bb3a5"
-
-   16.81:1  AAA   texto principal sobre o fundo
-    7.45:1  AAA   texto secundário sobre o fundo
-    7.47:1  AAA   acento como controle
-    8.29:1  AAA   texto DENTRO do botão de acento
-    3.53:1  AA    legenda — só passa em texto grande
-```
-
-Aquele `3.53:1` mudou o CSS: `--fg-apagado` **não** é usado em rótulo de 13,6px. Sem
-medir, seria.
-
-**A tipografia** veio de `scripts/tipo.py`. Instrument Serif no display e Instrument
-Sans no corpo, escolhidas por `--par` (casam por desenho) e as duas Google Fonts —
-`--licenca` existe justamente porque a fonte bonita costuma ser a que não se pode
-servir. A escala é `--escala --base 17 --razao 1.25`, copiada direto para os tokens.
-
-**O hero** é o passo 2.2 da `kit-montar`: perguntar o tipo antes de construir. Sem
-material do cliente, sobraram os dois tipos que não dependem de nada — tipográfico e
-WebGL. Escolhido o tipográfico: nada para carregar, nada para expirar, e nenhuma
-máquina em que ele deixe de renderizar.
-
----
-
-## As quatro armadilhas que este exemplo pagou
-
-Este exemplo não é uma vitrine — é o teste que encontrou defeito. Todas as quatro
-foram gravadas no acervo com `scripts/armadilhas.py`, e agora saem impressas na busca
-para quem escolher `kit-agendamento` amanhã.
-
-### 1. Import escrito para o layout errado · `alta`
-
-O `kit-agendamento` importava `../../kit-calendario/codigo/Calendario` — caminho que
-só resolve **dentro do acervo**. O README manda copiar para `components/kit-<nome>/`,
-onde `../../` passa do alvo e o segmento `/codigo/` não existe.
-
-O build quebra com `Module not found`, que parece falta de dependência e é falta de
-caminho. **Corrigido na peça**, não só aqui.
-
-### 2. `1.5h` para noventa minutos · `media`
-
-O formatador padrão arredonda para uma casa decimal: 75min vira `1.3h`. Ninguém lê
-"1.3h" como uma hora e quinze, e em pt-BR hora quebrada não usa ponto decimal.
-
-A ficha já avisava e diz onde consertar — na prop `textos`, sem tocar no componente:
-
-```tsx
-duracao: (min) =>
-  min < 60 ? `${min}min`
-  : min % 60 === 0 ? `${min / 60}h`
-  : `${Math.floor(min / 60)}h${String(min % 60).padStart(2, "0")}`
-```
-
-### 3. A ponte de contraste precisa alcançar o calendário · `alta`
-
-O calendário **redeclara** `--kit-fg-suave` dentro do próprio bloco, e declaração
-local vence herança. Ajustar só no contêiner do agendamento não chega lá.
-
-Medido no navegador, nesta paleta:
-
-| | iniciais dos dias da semana |
+| | |
 |---|---|
-| ponte alcançando `.kit-cal` | **7,33:1** — AAA |
-| só a declaração local | **3,11:1** — reprova AA |
+| ![categoria](telas/superior.jpg) | ![ficha](telas/pdp.jpg) |
+| **Categoria** — 47 peças, facetas por cor e tamanho, ordenação | **Ficha** — galeria de 15 fotos, cor, tamanho, parcelamento, Pix |
 
-2,4× de diferença, e **nada avisa**. Por isso o CSS traz os dois seletores:
+![busca](telas/busca.jpg)
 
-```css
-.secao-agendamento,
-.secao-agendamento .kit-cal { --kit-fg-suave: …; --kit-fg-apagado: …; }
-```
-
-### 4. Seletor de elemento vazando para dentro da peça · `media` — nova
-
-Esta apareceu montando, e é do **site**, não da peça: um `section { padding-block: 8rem }`
-solto alcança o `<section>` interno do componente e injeta 128px no meio do painel.
-Abre um buraco que parece defeito da peça.
-
-Peça copiada traz a marcação dela junto, e nenhum seletor de elemento sabe disso.
-
-```css
-main > section, main > header { padding-block: … }   /* escopado ao nível de página */
-```
-
-### E uma que não virou armadilha, virou correção
-
-O esqueleto que segura o layout enquanto o componente monta estava com `34rem`,
-enquanto o componente montado mede 495px. A página pulava 49px — metade do motivo de
-o esqueleto existir. Agora é `31rem`, **medido no navegador**, não estimado.
+**Busca** com filtro ao vivo sobre os 81 produtos. O acervo não tinha peça de busca
+para moda; esta foi construída e **voltou para o acervo** depois.
 
 ---
 
-## O ciclo, inteiro, num exemplo só
+## Os quatro bugs que a montagem encontrou
+
+Nenhum destes dá erro. Todos passam no build, sobem em produção e só aparecem quando
+um cliente reclama. Todos estão gravados como **armadilha** nas peças de origem — quem
+escolher `format-archive` amanhã lê os quatro antes de começar.
+
+### 1. SKU repetido entre tamanhos · `crítica`
+
+Chavear a sacola por SKU parece óbvio e quebra em catálogo real: **17 dos 81 produtos
+repetem o mesmo SKU em todos os tamanhos.** O item P e o GG viram uma linha só, e o
+tamanho errado vai para o checkout — sem erro nenhum.
+
+Chavear pelo **id da variante**, único nas 765. E conferir com um `Counter` antes de
+assumir que SKU é único.
+
+### 2. `opcao1` não é a cor · `crítica`
+
+Em catálogo exportado de plataforma SaaS, a primeira opção não tem posição fixa. Nos
+81 produtos da SHUI: 51 são `(Cor, Tamanho)`, 14 são só `(Tamanho)`, **6 vêm
+declarados invertidos**, e num deles o próprio array de opções mente — diz
+`[Tamanho, Cor]` enquanto `opcao1` guarda `Preto`.
+
+Ler `opcao1` como cor põe "P, M, G" como bolinha de cor em **27 dos 81 produtos** e
+some com o seletor de tamanho. Nem a posição nem o rótulo servem: quem decide é o
+**valor**. Tamanho vem de vocabulário fechado (`PP|P|M|G|GG|XG…`); o eixo cujos valores
+batem nele é o tamanho, o outro é a cor.
+
+### 3. O prefetch que baixa doze páginas por clique · `alta`
+
+`next/link` prefetcha toda rota que entra no viewport — numa categoria de 47 cards são
+**47 páginas baixadas antes de qualquer clique**. Pior: o React 19 emite
+`<link rel=preload>` para toda imagem com `fetchPriority=high`, e esse preload **viaja
+dentro do payload prefetchado**. Uma página acabava puxando a capa de doze outras, e
+toda página interna baixava o hero de 695 KB por causa do link "Início" da migalha.
+
+`prefetch={false}` em card de grade e em link de volta; prioridade alta só no LCP real.
+
+### 4. A mesma cor cadastrada de cinco jeitos · `alta`
+
+`PRETO` e `Preto`, `Off-White` e `Off White`, `Marinho` e `Azul Marinho`. A faceta
+mostrava **20 bolinhas para 16 cores reais**, com pares idênticos devolvendo listas
+diferentes — e marcar "Preto" perdia todo produto cadastrado como "PRETO".
+
+Corrigir **no dado**, no build do catálogo: chave sem acento, sem caixa, sem separador.
+E um mapa nome→hex de fallback, porque 22 cores vêm sem valor no cadastro e a bolinha
+renderiza transparente.
+
+---
+
+## O ciclo, que é o ponto
 
 ```
-buscar → montar → tropeçar → registrar → a próxima pessoa não tropeça
+buscar → montar → tropeçar → registrar → a próxima montagem já sabe
 ```
 
-As três peças chegaram com 11 armadilhas. Saíram deste exemplo com **13**. É isso que
-o cannonball faz: cada projeto deixa o acervo mais esperto que ele estava antes.
+A SHUI não consumiu o acervo, ela **o pagou de volta**: saiu com quatro armadilhas
+novas nas peças de origem e a receita `shui-vitrine-nuvemshop` gravada, pronta para a
+próxima loja que rodar em plataforma fechada.
 
 ```bash
-python scripts/buscar.py "agendamento" | grep ARMADILHA
+python scripts/buscar.py "vitrine sobre checkout de plataforma"
+python scripts/buscar.py "format-archive" | grep ARMADILHA
 ```
 
----
-
-## Estrutura
-
-```
-clinica-vertice/
-  app/
-    globals.css        tokens medidos + as duas correções de armadilha
-    layout.tsx         as fontes, com o porquê da escolha
-    page.tsx           hero tipográfico + serviços
-    api/agendar/       para onde a marcação vai (aqui, um eco)
-  components/
-    kit-agendamento/   ┐
-    kit-calendario/    ├ copiadas do acervo, sem alteração além do import
-    kit-mapa/          ┘
-    site/              o que é deste cliente e não se reaproveita
-```
-
-A separação é a regra: **peça do acervo não se edita para atender um cliente.** Tudo
-que muda de cliente para cliente sai por prop ou por variável CSS. Se você precisou
-abrir o `.tsx` da peça, ou o caso é novo mesmo, ou a peça está mal desenhada.
+> **Por que não tem código aqui.** O que faz este exemplo valer é o *processo*, e o
+> código é de terceiros — os dois templates vêm do acervo pessoal e a loja é de um
+> cliente real. O plugin distribui o motor; o material continua sendo de quem é.
+> Para um exemplo **rodável**, as três peças que vêm em [`seed/`](../seed/) montam uma
+> página completa sem depender de acervo nenhum.

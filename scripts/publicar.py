@@ -27,7 +27,7 @@ saida_utf8()
 
 # O motor. Generico, sem material de ninguem dentro.
 PUBLICO = ["scripts", "skills", "references", "seed", "exemplo", ".claude-plugin",
-           "README.md", "LICENSE", ".gitignore", ".gitattributes"]
+           ".github", "README.md", "LICENSE", ".gitignore", ".gitattributes"]
 
 # O acervo do usuario. So na RAIZ: seed/acervo e o exemplo que vai de proposito.
 NUNCA_NA_RAIZ = ("acervo", "_fonte", "cannonball.config.json", "INSTALAR.md")
