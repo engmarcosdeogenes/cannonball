@@ -16,12 +16,29 @@ description: >
 
 # kit-tipo — decidir o tipo, e poder entregá-lo
 
+## Antes de qualquer comando: resolva o `SKILL_DIR`
+
+Todo comando abaixo roda um script que viaja junto desta skill, em
+`SKILL_DIR/scripts/`. Defina `SKILL_DIR` como o **caminho absoluto da pasta que
+contém ESTE SKILL.md que você acabou de ler** — o seu harness informou esse caminho
+no resultado da leitura. Funciona em qualquer hospedeiro, sem depender de variável
+de ambiente de nenhum agente específico:
+
+```
+~/.claude/plugins/cache/cannonball/cannonball/<v>/skills/<nome>/SKILL.md
+~/.codex/skills/<nome>/SKILL.md
+~/.gemini/skills/<nome>/SKILL.md
+~/.agents/skills/<nome>/SKILL.md
+```
+
+Em todos, `SKILL_DIR` é a pasta do `SKILL.md`, e `SKILL_DIR/scripts/` está ao lado.
+
 A `kit-cor` existe porque o acervo tem cor demais e decisão de menos. Aqui o
 problema é **o inverso**, e é mais grave: o acervo nomeia **389 fontes
 diferentes, 341 delas usadas uma única vez** (87%).
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/scripts/tipo.py" --vies
+python "${SKILL_DIR}/scripts/tipo.py" --vies
 ```
 
 Isso não é variedade. É a **lista de compras de outras marcas**. Os design
@@ -41,8 +58,8 @@ montado a partir de site real:
 Quantas peças do **seu** acervo estão em cada caso:
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/scripts/tipo.py" --vies
-python "${CLAUDE_PLUGIN_ROOT}/scripts/tipo.py" --classificar
+python "${SKILL_DIR}/scripts/tipo.py" --vies
+python "${SKILL_DIR}/scripts/tipo.py" --classificar
 ```
 
 > **Cor é de graça. Tipo não é.** Essa é a diferença que organiza tudo aqui.
@@ -54,7 +71,7 @@ python "${CLAUDE_PLUGIN_ROOT}/scripts/tipo.py" --classificar
 Sempre o primeiro passo, e quase nunca o que se faz primeiro:
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/scripts/tipo.py" --licenca "Aeonik"
+python "${SKILL_DIR}/scripts/tipo.py" --licenca "Aeonik"
 ```
 
 Três situações, e a do meio é a que pega:
@@ -83,7 +100,7 @@ ela. Descobrir depois que a fonte custa por pageview é retrabalho caro.
 ## 2. Substitua por desenho, não por aparência
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/scripts/tipo.py" --substituir "Roobert"
+python "${SKILL_DIR}/scripts/tipo.py" --substituir "Roobert"
 ```
 
 O script devolve substituto livre com o critério explícito. O critério é
@@ -109,7 +126,7 @@ parecer técnica.
 ## 3. Duas famílias. Três é indecisão
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/scripts/tipo.py" --par "Instrument Serif"
+python "${SKILL_DIR}/scripts/tipo.py" --par "Instrument Serif"
 ```
 
 Um display e um corpo. Mono só entra se houver rótulo técnico, número ou código
@@ -133,7 +150,7 @@ diferença faz parte.
 ## 4. A escala é calculada, não escolhida a olho
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/scripts/tipo.py" --escala --base 17 --razao 1.25
+python "${SKILL_DIR}/scripts/tipo.py" --escala --base 17 --razao 1.25
 ```
 
 Base e razão, e o resto sai. Duas travas que o script avisa:
@@ -176,7 +193,7 @@ WOFF da PP Mori estão lá, e não estão.
 Com licença resolvida, par definido e escala pronta, a busca muda de natureza:
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/scripts/buscar.py" "<caráter>" --familia design-system
+python "${SKILL_DIR}/scripts/buscar.py" "<caráter>" --familia design-system
 ```
 
 O design system vai trazer a escala tipográfica dele e o nome da fonte dele.
@@ -187,7 +204,7 @@ espaçamento e no contraste, não no arquivo da fonte.
 Se o MCP do **GetLayers** estiver ligado, `getlayers_fonts` traz 15 tipos
 curados, cada um já com o `stack` CSS exato e a `importUrl` — todos livres, e com
 `pairsWith` para o par display + corpo. Ver
-`${CLAUDE_PLUGIN_ROOT}/references/getlayers.md`.
+`${SKILL_DIR}/references/getlayers.md`.
 
 ---
 
@@ -202,7 +219,7 @@ Se uma fonte quebrar em algum lugar — peso sintetizado, arquivo faltando, zoom
 iOS — registre:
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/scripts/armadilhas.py" --add <id-da-peça> \
+python "${SKILL_DIR}/scripts/armadilhas.py" --add <id-da-peça> \
   --texto "o que quebrou e em que tamanho/peso" --origem <receita> --grau alta
 ```
 

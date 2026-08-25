@@ -1,0 +1,42 @@
+{
+  "name": "cannonball",
+  "version": "3.0.0",
+  "description": "Guarda as peças de site que você já fez e as encontra de volta antes de gerar qualquer coisa do zero. O acervo é seu e começa com três peças de exemplo: templates, design systems, componentes, animações, efeitos e prompts que você ingere. Busca, monta combinando peças, decide cor e tipografia com contraste e licença medidos, e registra as armadilhas que cada peça já causou.",
+  "author": {
+    "name": "Hare Eckert",
+    "email": "harebeats@gmail.com"
+  },
+  "homepage": "https://github.com/harebeats/cannonball",
+  "repository": "https://github.com/harebeats/cannonball",
+  "license": "MIT",
+  "keywords": [
+    "landing-page",
+    "acervo",
+    "componentes",
+    "nextjs",
+    "tailwind",
+    "webgl",
+    "scroll",
+    "biblioteca"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "cannonball",
+    "shortDescription": "Você não começa do zero — chega com impulso.",
+    "longDescription": "Guarda as peças de site que você já fez — templates, design systems, componentes, animações, efeitos e prompts — e as encontra de volta antes de gerar qualquer coisa outra vez. O acervo é seu, mora fora do plugin e cresce a cada ingestão; nenhuma skill carrega lista fixa, todas leem o acervo na hora. Inclui decisão de cor com contraste medido, licença de fonte conferida antes da entrega, e o registro das armadilhas que cada peça já causou.",
+    "developerName": "Hare Eckert",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive",
+      "Read",
+      "Write"
+    ],
+    "websiteURL": "https://github.com/harebeats/cannonball",
+    "defaultPrompt": [
+      "/kit-buscar que hero eu tenho pra clínica?",
+      "/kit-montar preciso de uma landing pra joalheria",
+      "/kit-adaptar [cola um prompt em inglês] o que isso constrói?"
+    ],
+    "brandColor": "#4bb3a5"
+  }
+}

@@ -13,6 +13,23 @@ description: >
 
 # kit-prompt — gerar o prompt, não o site
 
+## Antes de qualquer comando: resolva o `SKILL_DIR`
+
+Todo comando abaixo roda um script que viaja junto desta skill, em
+`SKILL_DIR/scripts/`. Defina `SKILL_DIR` como o **caminho absoluto da pasta que
+contém ESTE SKILL.md que você acabou de ler** — o seu harness informou esse caminho
+no resultado da leitura. Funciona em qualquer hospedeiro, sem depender de variável
+de ambiente de nenhum agente específico:
+
+```
+~/.claude/plugins/cache/cannonball/cannonball/<v>/skills/<nome>/SKILL.md
+~/.codex/skills/<nome>/SKILL.md
+~/.gemini/skills/<nome>/SKILL.md
+~/.agents/skills/<nome>/SKILL.md
+```
+
+Em todos, `SKILL_DIR` é a pasta do `SKILL.md`, e `SKILL_DIR/scripts/` está ao lado.
+
 A diferença que define esta skill: **`kit-montar` escreve código no projeto; esta
 produz texto.** Um prompt que você leva para outro lugar, reusa, edita, guarda.
 
@@ -20,8 +37,8 @@ O trabalho aqui é gerar mais um prompt no padrão dos que já funcionaram, alim
 pelas peças que já existem. Veja o que existe antes de começar:
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/scripts/perfil.py"
-python "${CLAUDE_PLUGIN_ROOT}/scripts/buscar.py" --familia prompt --qualidade favorito
+python "${SKILL_DIR}/scripts/perfil.py"
+python "${SKILL_DIR}/scripts/buscar.py" --familia prompt --qualidade favorito
 ```
 
 **Acervo vazio não impede nada aqui** — o padrão abaixo é a regra, não um resumo
@@ -49,7 +66,8 @@ um esqueleto e chame de pronto.
 
 ## 1. Entreviste
 
-Agrupe numa mensagem só. Use `AskUserQuestion` quando as opções forem fechadas.
+Agrupe numa mensagem só, e ofereça alternativas fechadas quando houver (se o seu
+agente tiver ferramenta de múltipla escolha, use; senão, liste em texto).
 
 1. **O que é o site.** Setor, marca, público, o que precisa acontecer. Concreto:
    "clínica de estética facial, 30–50 anos, quer agendamento" — não "site bonito".
@@ -76,18 +94,18 @@ O prompt não sai da sua cabeça: sai do que já existe.
 >
 > **`get_prompt` é limitado a 3 na conta sem plano** — nunca gaste num prompt que
 > já está no acervo. Ver
-> `${CLAUDE_PLUGIN_ROOT}/references/motionsites-genjutsu-designdna.md`.
+> `${SKILL_DIR}/references/motionsites-genjutsu-designdna.md`.
 
 ```bash
 # identidade visual — paleta, tipografia, regras
-python "${CLAUDE_PLUGIN_ROOT}/scripts/buscar.py" "<caráter visual>" --familia design-system
+python "${SKILL_DIR}/scripts/buscar.py" "<caráter visual>" --familia design-system
 
 # estrutura — página inteira parecida
-python "${CLAUDE_PLUGIN_ROOT}/scripts/buscar.py" "<setor>" --familia prompt
-python "${CLAUDE_PLUGIN_ROOT}/scripts/buscar.py" "<setor>" --familia template
+python "${SKILL_DIR}/scripts/buscar.py" "<setor>" --familia prompt
+python "${SKILL_DIR}/scripts/buscar.py" "<setor>" --familia template
 
 # movimento — a técnica de animação
-python "${CLAUDE_PLUGIN_ROOT}/scripts/buscar.py" "<efeito desejado>" --familia animacao
+python "${SKILL_DIR}/scripts/buscar.py" "<efeito desejado>" --familia animacao
 ```
 
 **Leia o design system inteiro** em `acervo/design-systems/<id>/design-system.md`.
@@ -151,10 +169,10 @@ peças do acervo o alimentaram — o usuário precisa saber a procedência.
 Se ele gostar, ofereça guardar no acervo, que é como o acervo cresce:
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/scripts/ingerir.py" <arquivo>.md --id <slug> \
+python "${SKILL_DIR}/scripts/ingerir.py" <arquivo>.md --id <slug> \
   --setor <setor> --estrutura lp-completa \
   --quando-usar "..." --nao-usar-quando "..."
-python "${CLAUDE_PLUGIN_ROOT}/scripts/indexar.py"
+python "${SKILL_DIR}/scripts/indexar.py"
 ```
 
 E se ele for construir a partir dele agora, aí sim: `kit-montar`.
@@ -162,7 +180,7 @@ E se ele for construir a partir dele agora, aí sim: `kit-montar`.
 ## Sobre animação e WebGL no prompt
 
 Antes de especificar movimento, leia
-`${CLAUDE_PLUGIN_ROOT}/references/stack-animacao.md`. Ele traz o que está vivo e o
+`${SKILL_DIR}/references/stack-animacao.md`. Ele traz o que está vivo e o
 que está parado — não escreva um prompt pedindo `ogl` (sem release há 19 meses) ou
 `regl` (21 meses).
 

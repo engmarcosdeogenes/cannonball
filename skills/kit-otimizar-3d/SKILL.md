@@ -15,6 +15,23 @@ description: >
 
 # Otimizar cena 3D
 
+## Antes de qualquer comando: resolva o `SKILL_DIR`
+
+Todo comando abaixo roda um script que viaja junto desta skill, em
+`SKILL_DIR/scripts/`. Defina `SKILL_DIR` como o **caminho absoluto da pasta que
+contém ESTE SKILL.md que você acabou de ler** — o seu harness informou esse caminho
+no resultado da leitura. Funciona em qualquer hospedeiro, sem depender de variável
+de ambiente de nenhum agente específico:
+
+```
+~/.claude/plugins/cache/cannonball/cannonball/<v>/skills/<nome>/SKILL.md
+~/.codex/skills/<nome>/SKILL.md
+~/.gemini/skills/<nome>/SKILL.md
+~/.agents/skills/<nome>/SKILL.md
+```
+
+Em todos, `SKILL_DIR` é a pasta do `SKILL.md`, e `SKILL_DIR/scripts/` está ao lado.
+
 > Adaptada da `optimize-3d-scene` de
 > [textura-agency/next16-claude-starter](https://github.com/textura-agency/next16-claude-starter),
 > em domínio público. O conteúdo técnico é do autor original; o que mudou aqui
@@ -41,7 +58,7 @@ nova; os nomes de projeto que aparecem lá (`helion`, `mycelia`, `stride`,
 `clarix`) são só atribuição de origem, o código está inteiro no arquivo.
 
 Antes de escolher biblioteca, leia
-`${CLAUDE_PLUGIN_ROOT}/references/stack-webgl-react.md`: ele traz o estado de
+`${SKILL_DIR}/references/stack-webgl-react.md`: ele traz o estado de
 R3F, drei e Pixi no npm, e o conflito entre `<ScrollControls>` e Lenis que morde
 exatamente neste terreno.
 
@@ -461,10 +478,10 @@ Then, **no mesmo turno**, grave o que você descobriu no acervo. Este é o passo
 que faz o cannonball aprender — sem ele o próximo projeto tropeça igual:
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/scripts/armadilhas.py" --add <id-da-peça> \
+python "${SKILL_DIR}/scripts/armadilhas.py" --add <id-da-peça> \
   --texto "o que travava, o número antes/depois, e o que resolveu" \
   --origem <slug-do-projeto> --grau <critica|alta|media>
-python "${CLAUDE_PLUGIN_ROOT}/scripts/indexar.py"
+python "${SKILL_DIR}/scripts/indexar.py"
 ```
 
 Como escolher o grau aqui:

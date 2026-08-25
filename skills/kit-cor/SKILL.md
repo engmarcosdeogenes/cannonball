@@ -16,6 +16,23 @@ description: >
 
 # kit-cor — decidir a cor, em vez de herdar
 
+## Antes de qualquer comando: resolva o `SKILL_DIR`
+
+Todo comando abaixo roda um script que viaja junto desta skill, em
+`SKILL_DIR/scripts/`. Defina `SKILL_DIR` como o **caminho absoluto da pasta que
+contém ESTE SKILL.md que você acabou de ler** — o seu harness informou esse caminho
+no resultado da leitura. Funciona em qualquer hospedeiro, sem depender de variável
+de ambiente de nenhum agente específico:
+
+```
+~/.claude/plugins/cache/cannonball/cannonball/<v>/skills/<nome>/SKILL.md
+~/.codex/skills/<nome>/SKILL.md
+~/.gemini/skills/<nome>/SKILL.md
+~/.agents/skills/<nome>/SKILL.md
+```
+
+Em todos, `SKILL_DIR` é a pasta do `SKILL.md`, e `SKILL_DIR/scripts/` está ao lado.
+
 Um design system guarda as cores como **lista plana**: nenhuma diz qual é fundo,
 qual é tinta, qual é acento. Lista plana não se decide, só se copia — e copiar é
 exatamente a sensação de automático.
@@ -24,7 +41,7 @@ Pior: todo acervo de design system tem viés, e o viés é mensurável. Meça o 
 **antes** de recomendar qualquer coisa:
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/scripts/cor.py" --vies
+python "${SKILL_DIR}/scripts/cor.py" --vies
 ```
 
 Ele conta, dos design systems que você guardou, quantos têm acento neutro, azul,
@@ -86,7 +103,7 @@ O resto — superfície, superfície elevada, tinta suave, tinta apagada, linha,
 texto sobre o acento — **é derivação, não escolha**. O script faz:
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/scripts/cor.py" --paleta \
+python "${SKILL_DIR}/scripts/cor.py" --paleta \
   --fundo "#0b0b0d" --tinta "#f4f4f5" --acento "#c9a227"
 ```
 
@@ -104,7 +121,7 @@ emissivo) ou um estado semântico (erro, sucesso) — não um segundo acento.
 O olho se acostuma em dez minutos e passa a aprovar o que está ruim.
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/scripts/cor.py" --contraste "#767676" "#ffffff"
+python "${SKILL_DIR}/scripts/cor.py" --contraste "#767676" "#ffffff"
 ```
 
 O script separa o que tem mínimo obrigatório do que não tem:
@@ -131,7 +148,7 @@ celular sob sol, que é onde metade dos seus clientes vai abrir o site.
 Este é o passo que responde ao "está tudo no automático":
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/scripts/cor.py" --parecidos "#2563eb"
+python "${SKILL_DIR}/scripts/cor.py" --parecidos "#2563eb"
 ```
 
 Ele diz quantos design systems do acervo já têm acento daquela família e lista os
@@ -154,7 +171,7 @@ Com fundo, tinta e acento decididos, a busca muda de natureza: você não procur
 mais "um design system bonito", procura **um que já resolveu esta paleta**.
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/scripts/buscar.py" "<caráter> <temperatura>" --familia design-system
+python "${SKILL_DIR}/scripts/buscar.py" "<caráter> <temperatura>" --familia design-system
 ```
 
 Duas coisas para lembrar aqui:
@@ -166,7 +183,7 @@ Duas coisas para lembrar aqui:
   e não é essa, filtre **contra** eles.
 - Se o MCP do **GetLayers** estiver ligado, `getlayers_palettes` traz rampas
   portáteis que resolvem os mesmos quatro papéis — e alimentam o tingimento de
-  cena 3D direto. Ver `${CLAUDE_PLUGIN_ROOT}/references/getlayers.md`.
+  cena 3D direto. Ver `${SKILL_DIR}/references/getlayers.md`.
 
 Design system escolhido **depois** da cor é ferramenta. Escolhido antes, ele
 decide por você — e é assim que se chega no automático.
@@ -187,7 +204,7 @@ Se durante a montagem alguma cor reprovar contraste ou brigar com uma peça,
 registre:
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/scripts/armadilhas.py" --add <id-da-peça> \
+python "${SKILL_DIR}/scripts/armadilhas.py" --add <id-da-peça> \
   --texto "o par exato e o número medido" --origem <receita> --grau alta
 ```
 

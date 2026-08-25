@@ -14,6 +14,23 @@ description: >
 
 # kit-adaptar — entender o prompt que chegou, depois torcer ele pro seu caso
 
+## Antes de qualquer comando: resolva o `SKILL_DIR`
+
+Todo comando abaixo roda um script que viaja junto desta skill, em
+`SKILL_DIR/scripts/`. Defina `SKILL_DIR` como o **caminho absoluto da pasta que
+contém ESTE SKILL.md que você acabou de ler** — o seu harness informou esse caminho
+no resultado da leitura. Funciona em qualquer hospedeiro, sem depender de variável
+de ambiente de nenhum agente específico:
+
+```
+~/.claude/plugins/cache/cannonball/cannonball/<v>/skills/<nome>/SKILL.md
+~/.codex/skills/<nome>/SKILL.md
+~/.gemini/skills/<nome>/SKILL.md
+~/.agents/skills/<nome>/SKILL.md
+```
+
+Em todos, `SKILL_DIR` é a pasta do `SKILL.md`, e `SKILL_DIR/scripts/` está ao lado.
+
 `kit-prompt` escreve o prompt 85 do zero. Esta skill pega um prompt que já existe —
 copiado de um tweet, de um repositório, de outra ferramenta — e responde duas
 perguntas antes de qualquer coisa: **que site é esse** e **o que eu preciso ter para
@@ -28,8 +45,8 @@ são seus, num stack que talvez não seja o seu.
 Se o prompt veio colado no chat, grave num arquivo primeiro — os scripts leem arquivo.
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/scripts/ingerir.py" <arquivo> --analisar
-python "${CLAUDE_PLUGIN_ROOT}/scripts/assets.py"  <arquivo> --testar
+python "${SKILL_DIR}/scripts/ingerir.py" <arquivo> --analisar
+python "${SKILL_DIR}/scripts/assets.py"  <arquivo> --testar
 ```
 
 | Script | Responde |
@@ -139,8 +156,8 @@ pedido, não repita a pergunta.
 Antes de escrever, veja se o acervo resolve melhor do que o prompt de fora:
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/scripts/buscar.py" "<setor ou caráter>" --familia prompt
-python "${CLAUDE_PLUGIN_ROOT}/scripts/buscar.py" "<caráter visual>" --familia design-system
+python "${SKILL_DIR}/scripts/buscar.py" "<setor ou caráter>" --familia prompt
+python "${SKILL_DIR}/scripts/buscar.py" "<caráter visual>" --familia design-system
 ```
 
 O que muda e o que não muda na adaptação:
@@ -164,10 +181,10 @@ mudou em relação ao original.
 Prompt adaptado bom é peça nova do acervo:
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/scripts/ingerir.py" <arquivo>.md --id <slug> \
+python "${SKILL_DIR}/scripts/ingerir.py" <arquivo>.md --id <slug> \
   --setor <setor> --estrutura <estrutura> \
   --quando-usar "..." --nao-usar-quando "..."
-python "${CLAUDE_PLUGIN_ROOT}/scripts/indexar.py"
+python "${SKILL_DIR}/scripts/indexar.py"
 ```
 
 Se ele vai construir agora a partir dele: `kit-montar`.

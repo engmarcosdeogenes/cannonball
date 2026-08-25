@@ -52,8 +52,10 @@ armadilhas registradas e os avisos de saúde. Toda skill começa por aí.
 
 ## Instalar
 
-Requisitos: **Python 3** e o **Claude Code CLI**. Nada mais — os scripts não usam
-biblioteca externa nenhuma.
+Requisito único: **Python 3**. Os scripts importam só a biblioteca padrão — sem
+`pip install`, sem `node_modules`, sem rede.
+
+### Claude Code
 
 ```bash
 git clone https://github.com/harebeats/cannonball.git
@@ -61,6 +63,42 @@ cd cannonball
 claude plugin marketplace add .
 claude plugin install cannonball@cannonball
 ```
+
+### Codex, Gemini CLI, Cursor e os outros
+
+A CLI do [Agent Skills](https://agentskills.io) instala nos agentes que encontrar:
+
+```bash
+npx skills add harebeats/cannonball -g
+```
+
+`-g` instala para o seu usuário (`~/.codex/skills`, `~/.gemini/skills`,
+`~/.agents/skills`…); sem ele, instala no projeto atual. Para mirar um só:
+
+```bash
+npx skills add harebeats/cannonball -g -a codex
+npx skills add harebeats/cannonball -g -a gemini
+npx skills list harebeats/cannonball        # ver as 9 antes de instalar
+```
+
+**Cada pasta em `skills/` é autocontida** — carrega o `SKILL.md`, o `scripts/` que ele
+chama, o `references/` que cita e o `seed/`. Você pode instalar as nove ou só a que
+interessa: `kit-cor` e `kit-tipo`, por exemplo, resolvem paleta e licença de fonte sem
+depender de acervo nenhum.
+
+### Manual, em qualquer agente
+
+```bash
+git clone https://github.com/harebeats/cannonball.git
+ln -s "$(pwd)/cannonball/skills/kit-buscar" ~/.agents/skills/kit-buscar
+```
+
+O símbolo mantém a instalação em dia com o seu clone. Serve para `~/.codex/skills`,
+`~/.gemini/skills`, `~/.cursor/skills` — a pasta muda, o resto não.
+
+> **Por que funciona igual em todos.** Nenhum `SKILL.md` usa variável de ambiente de
+> agente. Cada um resolve os próprios scripts a partir da pasta de onde foi lido, o
+> que é informação que todo harness dá. Ver [AGENTS.md](AGENTS.md).
 
 O acervo é criado em `~/.cannonball` na primeira vez que uma skill roda, já com as
 três peças de exemplo dentro.

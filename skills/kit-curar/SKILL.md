@@ -10,10 +10,27 @@ description: >
 
 # kit-curar — saúde do acervo
 
+## Antes de qualquer comando: resolva o `SKILL_DIR`
+
+Todo comando abaixo roda um script que viaja junto desta skill, em
+`SKILL_DIR/scripts/`. Defina `SKILL_DIR` como o **caminho absoluto da pasta que
+contém ESTE SKILL.md que você acabou de ler** — o seu harness informou esse caminho
+no resultado da leitura. Funciona em qualquer hospedeiro, sem depender de variável
+de ambiente de nenhum agente específico:
+
+```
+~/.claude/plugins/cache/cannonball/cannonball/<v>/skills/<nome>/SKILL.md
+~/.codex/skills/<nome>/SKILL.md
+~/.gemini/skills/<nome>/SKILL.md
+~/.agents/skills/<nome>/SKILL.md
+```
+
+Em todos, `SKILL_DIR` é a pasta do `SKILL.md`, e `SKILL_DIR/scripts/` está ao lado.
+
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/scripts/perfil.py"                  # o retrato de agora
-python "${CLAUDE_PLUGIN_ROOT}/scripts/curar.py"
-python "${CLAUDE_PLUGIN_ROOT}/scripts/curar.py" --assets --n 20   # testa URLs (usa rede)
+python "${SKILL_DIR}/scripts/perfil.py"                  # o retrato de agora
+python "${SKILL_DIR}/scripts/curar.py"
+python "${SKILL_DIR}/scripts/curar.py" --assets --n 20   # testa URLs (usa rede)
 ```
 
 O `perfil.py` vem primeiro porque dá a escala: ele reporta o total, as lacunas de

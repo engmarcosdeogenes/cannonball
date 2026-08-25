@@ -15,10 +15,27 @@ description: >
 
 # kit-ingerir — alimentar o acervo
 
+## Antes de qualquer comando: resolva o `SKILL_DIR`
+
+Todo comando abaixo roda um script que viaja junto desta skill, em
+`SKILL_DIR/scripts/`. Defina `SKILL_DIR` como o **caminho absoluto da pasta que
+contém ESTE SKILL.md que você acabou de ler** — o seu harness informou esse caminho
+no resultado da leitura. Funciona em qualquer hospedeiro, sem depender de variável
+de ambiente de nenhum agente específico:
+
+```
+~/.claude/plugins/cache/cannonball/cannonball/<v>/skills/<nome>/SKILL.md
+~/.codex/skills/<nome>/SKILL.md
+~/.gemini/skills/<nome>/SKILL.md
+~/.agents/skills/<nome>/SKILL.md
+```
+
+Em todos, `SKILL_DIR` é a pasta do `SKILL.md`, e `SKILL_DIR/scripts/` está ao lado.
+
 ## Antes da primeira ingestão: onde isso vai morar?
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/scripts/vincular.py"
+python "${SKILL_DIR}/scripts/vincular.py"
 ```
 
 Se a resposta for *"quem manda: o padrão, porque nada foi vinculado"*, **pergunte ao
@@ -27,7 +44,7 @@ usuário onde ele quer o acervo antes de gravar a primeira peça.** O padrão é
 depois é trabalho manual, com o índice para regerar.
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/scripts/vincular.py" --para "<pasta>"
+python "${SKILL_DIR}/scripts/vincular.py" --para "<pasta>"
 ```
 
 Sugira uma pasta versionada num repositório **privado**: o acervo guarda material de
@@ -45,7 +62,7 @@ O script detecta sozinho família, stack, dependências, fontes, assets externos
 marca. Rode antes de perguntar qualquer coisa ao usuário:
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/scripts/ingerir.py" <arquivo> --analisar
+python "${SKILL_DIR}/scripts/ingerir.py" <arquivo> --analisar
 ```
 
 Ele classifica **por conteúdo, não por extensão** — isso importa: 30 dos arquivos
@@ -82,9 +99,9 @@ Duas regras para o par `quando_usar` / `nao_usar_quando`:
 Depois:
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/scripts/ingerir.py" <arquivo> --id ... --titulo ... \
+python "${SKILL_DIR}/scripts/ingerir.py" <arquivo> --id ... --titulo ... \
   --setor ... --estrutura ... --tags ... --quando-usar "..." --nao-usar-quando "..."
-python "${CLAUDE_PLUGIN_ROOT}/scripts/indexar.py"
+python "${SKILL_DIR}/scripts/indexar.py"
 ```
 
 O `indexar.py` no fim é obrigatório — sem ele a peça existe no disco mas não aparece
@@ -97,10 +114,10 @@ styling, TypeScript, presets, tweaks), copiar um snapshot joga fora exatamente o
 que o MCP tem de melhor, e o snapshot envelhece. Indexe só a ficha, com ponteiro:
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/scripts/ingerir_mcp.py" \
+python "${SKILL_DIR}/scripts/ingerir_mcp.py" \
   --catalogo <catalogo>.json --fonte originkit --analisar
 
-python "${CLAUDE_PLUGIN_ROOT}/scripts/ingerir_mcp.py" \
+python "${SKILL_DIR}/scripts/ingerir_mcp.py" \
   --catalogo <catalogo>.json --fonte originkit --prefixo ok- \
   --julgamentos <julgamentos>.json
 ```
@@ -122,10 +139,10 @@ dependências entre componentes — nada precisa ser inferido do código, e voc�
 precisa de projeto nem de `node_modules`.
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/scripts/ingerir_registro.py" \
+python "${SKILL_DIR}/scripts/ingerir_registro.py" \
   --url https://smoothui.dev/r/siri-orb.json --analisar
 
-python "${CLAUDE_PLUGIN_ROOT}/scripts/ingerir_registro.py" --arquivo cache/siri-orb.json \
+python "${SKILL_DIR}/scripts/ingerir_registro.py" --arquivo cache/siri-orb.json \
   --id sui-siri-orb --registro smoothui --estrutura componente-ai \
   --quando-usar "..." --nao-usar-quando "..."
 ```
@@ -143,8 +160,8 @@ dedicado. Esse formato é rígido o bastante para que quase toda a ficha saia po
 extração — nome, tagline, tema, paleta completa, fontes e marcas similares:
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/scripts/ingerir_design.py" <arquivo> --analisar
-python "${CLAUDE_PLUGIN_ROOT}/scripts/ingerir_design.py" <arquivo> --id ds-<nome> \
+python "${SKILL_DIR}/scripts/ingerir_design.py" <arquivo> --analisar
+python "${SKILL_DIR}/scripts/ingerir_design.py" <arquivo> --id ds-<nome> \
   --setor <setor> --quando-usar "..." --nao-usar-quando "..." --tags "..."
 ```
 
@@ -159,7 +176,7 @@ Prefixe os ids com `ds-` para não colidir com outras famílias.
 Para uma pasta inteira, gere primeiro o digest e escreva as fichas a partir dele:
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/scripts/ingerir_design.py" <pasta> --digest
+python "${SKILL_DIR}/scripts/ingerir_design.py" <pasta> --digest
 ```
 
 ## Projeto inteiro é outra unidade — use o outro script
@@ -168,8 +185,8 @@ Uma animação de scroll vive espalhada entre `script.js` + `styles.css` + `inde
 Separar em arquivos destrói a peça. Quando a unidade é a **pasta**, use:
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/scripts/ingerir_projeto.py" <pasta> --analisar
-python "${CLAUDE_PLUGIN_ROOT}/scripts/ingerir_projeto.py" <pasta> --id ... \
+python "${SKILL_DIR}/scripts/ingerir_projeto.py" <pasta> --analisar
+python "${SKILL_DIR}/scripts/ingerir_projeto.py" <pasta> --id ... \
   --familia template --titulo ... --estrutura template-multipagina \
   --quando-usar "..." --nao-usar-quando "..."
 ```
@@ -186,8 +203,8 @@ Estruturas: `template-multipagina`, `template-single-page`, `animacao-scroll`,
 Para muitos projetos de uma vez, escreva um arquivo de lote e rode:
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/scripts/lote.py" <lote>.json --simular
-python "${CLAUDE_PLUGIN_ROOT}/scripts/lote.py" <lote>.json
+python "${SKILL_DIR}/scripts/lote.py" <lote>.json --simular
+python "${SKILL_DIR}/scripts/lote.py" <lote>.json
 ```
 
 Sempre `--simular` antes: ele confere se todos os caminhos resolvem sem gravar nada.
@@ -215,9 +232,9 @@ escapar. Um template com carrinho e catálogo pode ficar invisível para quem bu
 "grade de produtos" só porque a ficha fala de tipografia.
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/scripts/tags_funcao.py" --auditar
-python "${CLAUDE_PLUGIN_ROOT}/scripts/tags_funcao.py" --lote _tags_funcao_propostas.json
-python "${CLAUDE_PLUGIN_ROOT}/scripts/indexar.py"
+python "${SKILL_DIR}/scripts/tags_funcao.py" --auditar
+python "${SKILL_DIR}/scripts/tags_funcao.py" --lote _tags_funcao_propostas.json
+python "${SKILL_DIR}/scripts/indexar.py"
 ```
 
 Ele lê o **código**, não a ficha, e propõe etiquetas de função. Design system ganha
@@ -251,7 +268,7 @@ autocontido, que não serve ao fluxo Next + GSAP.
 ## Antes de gravar, verifique se já existe
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/scripts/buscar.py" "<descrição da peça>"
+python "${SKILL_DIR}/scripts/buscar.py" "<descrição da peça>"
 ```
 
 Se já existe algo equivalente, o certo é melhorar a ficha do que existe, não criar um

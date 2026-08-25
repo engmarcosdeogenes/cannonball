@@ -18,6 +18,23 @@ description: >
 
 # kit-buscar — o que já existe no acervo
 
+## Antes de qualquer comando: resolva o `SKILL_DIR`
+
+Todo comando abaixo roda um script que viaja junto desta skill, em
+`SKILL_DIR/scripts/`. Defina `SKILL_DIR` como o **caminho absoluto da pasta que
+contém ESTE SKILL.md que você acabou de ler** — o seu harness informou esse caminho
+no resultado da leitura. Funciona em qualquer hospedeiro, sem depender de variável
+de ambiente de nenhum agente específico:
+
+```
+~/.claude/plugins/cache/cannonball/cannonball/<v>/skills/<nome>/SKILL.md
+~/.codex/skills/<nome>/SKILL.md
+~/.gemini/skills/<nome>/SKILL.md
+~/.agents/skills/<nome>/SKILL.md
+```
+
+Em todos, `SKILL_DIR` é a pasta do `SKILL.md`, e `SKILL_DIR/scripts/` está ao lado.
+
 Antes de escrever qualquer hero, seção ou página, pergunte ao acervo. Gerar do zero
 o que já existe é desperdício e produz resultado pior que uma peça que já rodou em
 produção.
@@ -28,7 +45,7 @@ produção.
 peças ou ter milhares. Nada nesta skill afirma um número — quem afirma é o acervo:
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/scripts/perfil.py"
+python "${SKILL_DIR}/scripts/perfil.py"
 ```
 
 Isso devolve, do estado atual: famílias e quanto cada uma tem, setores, stacks,
@@ -43,7 +60,7 @@ isso ao usuário** — é o passo que, esquecido, deixa o material dele em `~/.c
 em vez da pasta que ele queria, e mover depois é trabalho manual.
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/scripts/vincular.py" --para "<pasta do usuário>"
+python "${SKILL_DIR}/scripts/vincular.py" --para "<pasta do usuário>"
 ```
 
 **Se o perfil disser que o acervo está vazio, ou só com as peças de exemplo**, diga
@@ -56,7 +73,7 @@ a `kit-tipo` medem.
 ## Como buscar
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/scripts/buscar.py" "landing de clínica odontológica"
+python "${SKILL_DIR}/scripts/buscar.py" "landing de clínica odontológica"
 ```
 
 Filtros combináveis:
@@ -84,7 +101,7 @@ template com 475 ocorrências de carrinho e catálogo sumia de uma busca por "gr
 produtos".
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/scripts/buscar.py" --tag catalogo --tag carrinho
+python "${SKILL_DIR}/scripts/buscar.py" --tag catalogo --tag carrinho
 ```
 
 Duas etiquetas para a mesma função, e a diferença importa:
@@ -96,7 +113,7 @@ Duas etiquetas para a mesma função, e a diferença importa:
 Quanto o acervo cobre de cada função, agora:
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/scripts/perfil.py" --funcao
+python "${SKILL_DIR}/scripts/perfil.py" --funcao
 ```
 
 A linha `lacunas:` é a mais útil das duas: são as funções sem **nenhuma** peça.
@@ -115,7 +132,7 @@ Se a stack já foi dita nesta conversa, **use sempre** — devolver uma peça Fr
 quem trabalha em Next.js gasta o tempo do usuário:
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/scripts/buscar.py" "<consulta>" --stack nextjs
+python "${SKILL_DIR}/scripts/buscar.py" "<consulta>" --stack nextjs
 ```
 
 Quais stacks o acervo cobre, e quanto de cada uma, sai na linha `stacks:` do
@@ -190,7 +207,7 @@ vence: é seu, é julgado, não tem cota, e carrega as armadilhas que você já 
 
 Se o MCP estiver ligado, ele é a maior fonte de prompt de página pronta. A cota é o
 que manda no uso. Ver
-`${CLAUDE_PLUGIN_ROOT}/references/motionsites-genjutsu-designdna.md`.
+`${SKILL_DIR}/references/motionsites-genjutsu-designdna.md`.
 
 | Ferramenta | Custo |
 |---|---|
@@ -216,7 +233,7 @@ gastou uma das 3 e não guardou.
 ### GetLayers — composição, vídeo e cena 3D original
 
 Outro MCP, outra função. Leia
-`${CLAUDE_PLUGIN_ROOT}/references/getlayers.md` antes de usar; `getlayers_start`
+`${SKILL_DIR}/references/getlayers.md` antes de usar; `getlayers_start`
 é chamada obrigatória e devolve o guia inteiro.
 
 Ele tem **três coisas que um acervo de peças não tem por natureza**: composições
@@ -250,13 +267,13 @@ Três eixos funcionam bem:
 
 ```bash
 # por caráter visual — é o que melhor funciona
-python "${CLAUDE_PLUGIN_ROOT}/scripts/buscar.py" "creme quente editorial papel" --familia design-system
+python "${SKILL_DIR}/scripts/buscar.py" "creme quente editorial papel" --familia design-system
 
 # por marca de referência (cada sistema lista marcas parecidas)
-python "${CLAUDE_PLUGIN_ROOT}/scripts/buscar.py" "Aesop" --familia design-system
+python "${SKILL_DIR}/scripts/buscar.py" "Aesop" --familia design-system
 
 # por tema
-python "${CLAUDE_PLUGIN_ROOT}/scripts/buscar.py" --tag tema-dark --setor fintech
+python "${SKILL_DIR}/scripts/buscar.py" --tag tema-dark --setor fintech
 ```
 
 Também dá para buscar por fonte (`Inter`, `Geist`, `SF Pro`) ou por hex da paleta.
@@ -270,8 +287,8 @@ aglomerado mais comum é o editorial branco — parede branca, tipografia preta,
 Ache os do **seu** acervo antes de recomendar:
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/scripts/buscar.py" --listar tag
-python "${CLAUDE_PLUGIN_ROOT}/scripts/cor.py" --vies
+python "${SKILL_DIR}/scripts/buscar.py" --listar tag
+python "${SKILL_DIR}/scripts/cor.py" --vies
 ```
 
 Tag com contagem muito alta é aglomerado; `cor.py --vies` mede o mesmo pelo lado da
@@ -320,9 +337,9 @@ Templates e animações são indexados também pelas técnicas que empregam. Iss
 eixo de busca que o resto do acervo não tem:
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/scripts/buscar.py" --tag pin --tag scrub
-python "${CLAUDE_PLUGIN_ROOT}/scripts/buscar.py" "transição de página" --familia animacao
-python "${CLAUDE_PLUGIN_ROOT}/scripts/buscar.py" --tag shader --stack nextjs
+python "${SKILL_DIR}/scripts/buscar.py" --tag pin --tag scrub
+python "${SKILL_DIR}/scripts/buscar.py" "transição de página" --familia animacao
+python "${SKILL_DIR}/scripts/buscar.py" --tag shader --stack nextjs
 ```
 
 Vocabulário disponível: `scrolltrigger`, `pin`, `scrub`, `split-text`, `flip`,

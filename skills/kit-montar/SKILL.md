@@ -19,6 +19,23 @@ description: >
 
 # kit-montar — site novo a partir do acervo
 
+## Antes de qualquer comando: resolva o `SKILL_DIR`
+
+Todo comando abaixo roda um script que viaja junto desta skill, em
+`SKILL_DIR/scripts/`. Defina `SKILL_DIR` como o **caminho absoluto da pasta que
+contém ESTE SKILL.md que você acabou de ler** — o seu harness informou esse caminho
+no resultado da leitura. Funciona em qualquer hospedeiro, sem depender de variável
+de ambiente de nenhum agente específico:
+
+```
+~/.claude/plugins/cache/cannonball/cannonball/<v>/skills/<nome>/SKILL.md
+~/.codex/skills/<nome>/SKILL.md
+~/.gemini/skills/<nome>/SKILL.md
+~/.agents/skills/<nome>/SKILL.md
+```
+
+Em todos, `SKILL_DIR` é a pasta do `SKILL.md`, e `SKILL_DIR/scripts/` está ao lado.
+
 A regra que governa esta skill: **o acervo vem primeiro**. Gerar do zero é o último
 recurso, não o primeiro — o que está no acervo já rodou, código novo é aposta.
 
@@ -27,7 +44,7 @@ recurso, não o primeiro — o que está no acervo já rodou, código novo é ap
 O acervo é do usuário e muda a cada ingestão. Antes de qualquer pergunta:
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/scripts/perfil.py"
+python "${SKILL_DIR}/scripts/perfil.py"
 ```
 
 Ele diz quantas peças existem, de que famílias, em que stacks, que setores cobre e
@@ -39,7 +56,7 @@ instalação nova ele manda **vincular a pasta** antes de qualquer ingestão —
 usuário, porque esquecer isso deixa o material dele no lugar errado:
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/scripts/vincular.py" --para "<pasta do usuário>"
+python "${SKILL_DIR}/scripts/vincular.py" --para "<pasta do usuário>"
 ```
 
 **Acervo vazio não invalida a skill.** O fluxo continua igual — briefing, cor,
@@ -54,8 +71,9 @@ de uma vez.
 de escolher significa refazer o trabalho.
 
 Antes de montar as opções, leia a linha `stacks:` do perfil — ela diz quanto do
-acervo cada stack cobre. Use `AskUserQuestion` com estas opções, nesta ordem, e
-anote ao lado de cada uma a cobertura real que o perfil reportou:
+acervo cada stack cobre. Ofereça estas opções ao usuário, nesta ordem, com a
+cobertura real que o perfil reportou ao lado de cada uma (se o seu agente tiver uma
+ferramenta de pergunta de múltipla escolha, use; senão, pergunte em texto):
 
 | Opção | |
 |---|---|
@@ -64,18 +82,18 @@ anote ao lado de cada uma a cobertura real que o perfil reportou:
 | **Vite + React** | protótipo, hero solto, entrega sem SSR |
 | **HTML/CSS/JS puro, sem build** | site de uma página, cliente sem infra |
 
-Ofereça também, como pergunta separada e `multiSelect`, as bibliotecas de efeito:
+Ofereça também, como pergunta separada e de múltipla escolha, as bibliotecas de efeito:
 **Three.js/WebGL**, **Framer Motion**, **Matter.js** (física), **Swiper**,
 **Theatre.js** (coreografia de câmera). Confira no perfil quais delas o acervo
 realmente cobre antes de recomendar — sugerir biblioteca sem peça é prometer trabalho
 do zero disfarçado de reuso.
 
 Antes de recomendar qualquer uma, leia
-`${CLAUDE_PLUGIN_ROOT}/references/stack-animacao.md`: ele diz o que está vivo no npm
+`${SKILL_DIR}/references/stack-animacao.md`: ele diz o que está vivo no npm
 e o que está parado.
 
 **Se a resposta incluir Three.js/WebGL numa stack React, leia também
-`${CLAUDE_PLUGIN_ROOT}/references/stack-webgl-react.md` antes de escrever qualquer
+`${SKILL_DIR}/references/stack-webgl-react.md` antes de escrever qualquer
 linha.** Ele cobre React Three Fiber, drei e PixiJS, e traz o conflito que mais
 morde nesse cruzamento:
 
@@ -102,7 +120,7 @@ usuário precisa saber disso antes de aprovar o plano.
 Registre a resposta e **use em toda busca daqui em diante**:
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/scripts/buscar.py" "<consulta>" --stack nextjs
+python "${SKILL_DIR}/scripts/buscar.py" "<consulta>" --stack nextjs
 ```
 
 Se o usuário já disse a stack no pedido, não pergunte de novo — confirme numa linha
@@ -179,13 +197,13 @@ peças do acervo.
 - `get_component` do OriginKit — quando quiser o código já na sua stack
 - `generate_image` / `generate_video` do **Higgsfield** — **por último e com
   confirmação**, quando o hero escolhido pede mídia e o cliente não tem nenhuma.
-  Ver o passo 2.2 e `${CLAUDE_PLUGIN_ROOT}/references/higgsfield.md`
+  Ver o passo 2.2 e `${SKILL_DIR}/references/higgsfield.md`
 
 **6. O que veio de fora, ingira.** Prompt aberto com uma das 3 cotas e não
 guardado é cota queimada duas vezes.
 
-Detalhes que mordem estão em `${CLAUDE_PLUGIN_ROOT}/references/getlayers.md` e
-`${CLAUDE_PLUGIN_ROOT}/references/motionsites-genjutsu-designdna.md` — leia antes
+Detalhes que mordem estão em `${SKILL_DIR}/references/getlayers.md` e
+`${SKILL_DIR}/references/motionsites-genjutsu-designdna.md` — leia antes
 de materializar. O principal: **mídia do GetLayers nunca vem no contexto**, e
 template sem o `.glb` baixado renderiza em branco, sem erro.
 
@@ -206,7 +224,7 @@ Se ele já deu tudo isso no pedido, não pergunte de novo. Vá montar.
 ## 2. Consulte o acervo antes de decidir qualquer coisa
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/scripts/buscar.py" "<setor + estrutura>" --n 6
+python "${SKILL_DIR}/scripts/buscar.py" "<setor + estrutura>" --n 6
 ```
 
 Busque por partes: primeiro a estrutura principal (`--estrutura lp-completa` ou
@@ -217,7 +235,7 @@ Confira sempre as **receitas** primeiro — se já existe uma composição que f
 para um caso parecido, comece dela:
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/scripts/buscar.py" --estrutura receita
+python "${SKILL_DIR}/scripts/buscar.py" --estrutura receita
 ```
 
 ## 2.2. Que hero? — a pergunta que decide o site
@@ -231,8 +249,8 @@ Não pergunte no vácuo. Busque primeiro o que o acervo cobre para este setor e 
 caráter, e ofereça o que existe **junto** com o que teria de ser gerado:
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/scripts/buscar.py" "<setor> hero" --estrutura hero --n 6
-python "${CLAUDE_PLUGIN_ROOT}/scripts/buscar.py" --tag video-bg --sem-video   # o que NÃO precisa de vídeo
+python "${SKILL_DIR}/scripts/buscar.py" "<setor> hero" --estrutura hero --n 6
+python "${SKILL_DIR}/scripts/buscar.py" --tag video-bg --sem-video   # o que NÃO precisa de vídeo
 ```
 
 ### Os tipos, e o que cada um cobra
@@ -248,8 +266,7 @@ python "${CLAUDE_PLUGIN_ROOT}/scripts/buscar.py" --tag video-bg --sem-video   # 
 | **efeito sobre imagem** | ASCII, vidro, glitch envolvendo uma foto | 1 imagem | `--familia efeito` |
 | **carrossel** | várias peças rotacionando | 3 a 6 imagens | `--familia ui`, `--tag carrossel` |
 
-Use `AskUserQuestion` com **quatro** dessas, escolhidas pelo briefing — não despeje as
-oito. Quem tem vídeo do cliente merece ver "vídeo de fundo" e "scroll cinemático" na
+Ofereça **quatro** dessas, escolhidas pelo briefing — não despeje as oito. Quem tem vídeo do cliente merece ver "vídeo de fundo" e "scroll cinemático" na
 lista; quem não tem material nenhum merece ver "tipográfico" e "WebGL" no topo, porque
 são os dois que não dependem de nada.
 
@@ -269,7 +286,7 @@ busca acima) e **o que ela cobra**. As três frases que mais evitam arrependimen
 É o caso mais comum em projeto real, e até aqui a saída era placeholder. Com o **MCP
 do Higgsfield ligado**, dá para gerar imagem e vídeo do hero sob medida.
 
-Leia `${CLAUDE_PLUGIN_ROOT}/references/higgsfield.md` antes da primeira chamada —
+Leia `${SKILL_DIR}/references/higgsfield.md` antes da primeira chamada —
 ele custa crédito de verdade, tem moderação que reprova por engano, e o vídeo leva
 minutos. Não é uma chamada para "dar uma olhada".
 
@@ -302,7 +319,7 @@ e site de marca converge para neutro, azul e tema claro. Meça o **seu** antes d
 recomendar:
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/scripts/cor.py" --vies
+python "${SKILL_DIR}/scripts/cor.py" --vies
 ```
 
 Buscar sem ter decidido a cor devolve, na média, exatamente o lugar-comum que o viés
@@ -313,7 +330,7 @@ paleta por papel, mede o contraste de cada par e diz de quantos design systems
 você está chegando perto.
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/scripts/cor.py" --paleta --fundo ... --tinta ... --acento ...
+python "${SKILL_DIR}/scripts/cor.py" --paleta --fundo ... --tinta ... --acento ...
 ```
 
 ### E confira a licença da fonte antes de adotar
@@ -327,8 +344,8 @@ sai no `perfil.py`, na linha `fonte não entregável`.
 Use a **`kit-tipo`** antes de adotar o tipo do design system:
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/scripts/tipo.py" --licenca "<fonte do design system>"
-python "${CLAUDE_PLUGIN_ROOT}/scripts/tipo.py" --substituir "<fonte>"
+python "${SKILL_DIR}/scripts/tipo.py" --licenca "<fonte do design system>"
+python "${SKILL_DIR}/scripts/tipo.py" --substituir "<fonte>"
 ```
 
 Trate o nome da fonte no design system como **sugestão, não requisito**. A
@@ -343,7 +360,7 @@ tipográfica completa, CSS custom properties prontos, **Do's and Don'ts** e um
 **Agent Prompt Guide** com exemplos de prompt por componente.
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/scripts/buscar.py" "<caráter visual>" --familia design-system
+python "${SKILL_DIR}/scripts/buscar.py" "<caráter visual>" --familia design-system
 ```
 
 Busque pelo **caráter**, não pelo setor: "creme quente editorial", "preto com um
@@ -392,7 +409,7 @@ tende à pilha centralizada. Escolha o esqueleto primeiro, depois despeje dentro
 dele a identidade e as peças do acervo.
 
 Composição é neutra de biblioteca: serve igual num projeto GSAP. Ver
-`${CLAUDE_PLUGIN_ROOT}/references/getlayers.md` para o resto — e para a cota, que
+`${SKILL_DIR}/references/getlayers.md` para o resto — e para a cota, que
 vale para `materialize`, não para consultar.
 
 ## 3.5. Comece por um template, quando houver
@@ -402,7 +419,7 @@ Next.js com GSAP e Lenis — exatamente o stack do usuário. Clonar e adaptar um
 template supera montar peça por peça sempre que o escopo for um site inteiro.
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/scripts/buscar.py" "<setor>" --familia template
+python "${SKILL_DIR}/scripts/buscar.py" "<setor>" --familia template
 ```
 
 Cada template traz rotas, componentes e build já configurados. O `README.md` da pasta
@@ -708,10 +725,10 @@ igual.
 Ao terminar, para **cada peça que deu trabalho**, grave:
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/scripts/armadilhas.py" --add <id-da-peça> \
+python "${SKILL_DIR}/scripts/armadilhas.py" --add <id-da-peça> \
   --texto "o que aconteceu e como resolveu, com o valor exato" \
   --origem <slug-da-receita> --grau <critica|alta|media>
-python "${CLAUDE_PLUGIN_ROOT}/scripts/indexar.py"
+python "${SKILL_DIR}/scripts/indexar.py"
 ```
 
 O `--grau` não é enfeite: sem ele, uma armadilha que trava a página sai na busca
@@ -769,7 +786,7 @@ Estas apareceram montando e valem para qualquer projeto:
 Terminou e ficou bom? Registre a composição:
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/scripts/receita.py" criar <slug> \
+python "${SKILL_DIR}/scripts/receita.py" criar <slug> \
   --titulo "..." --setor <setor> --pecas id1,id2,id3 \
   --quando-usar "..." --notas "o que deu trabalho e como resolveu"
 ```

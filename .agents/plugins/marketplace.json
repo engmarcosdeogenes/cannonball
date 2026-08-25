@@ -1,0 +1,27 @@
+{
+  "name": "cannonball",
+  "owner": {
+    "name": "Hare Eckert",
+    "email": "harebeats@gmail.com"
+  },
+  "description": "Acervo pessoal de peças de site: guarda o que você já fez e encontra de volta antes de gerar do zero.",
+  "plugins": [
+    {
+      "name": "cannonball",
+      "source": "./",
+      "description": "Guarda as peças de site que você já fez — templates, design systems, componentes, animações, efeitos e prompts — e as encontra de volta antes de gerar qualquer coisa outra vez. O acervo é seu, mora fora do plugin e cresce a cada ingestão; nenhuma skill carrega lista fixa, todas leem o acervo na hora. Inclui decisão de cor com contraste medido, licença de fonte conferida antes da entrega, e o registro das armadilhas que cada peça já causou.",
+      "category": "design",
+      "skills": [
+        "./skills/kit-buscar",
+        "./skills/kit-montar",
+        "./skills/kit-prompt",
+        "./skills/kit-adaptar",
+        "./skills/kit-ingerir",
+        "./skills/kit-curar",
+        "./skills/kit-otimizar-3d",
+        "./skills/kit-cor",
+        "./skills/kit-tipo"
+      ]
+    }
+  ]
+}
