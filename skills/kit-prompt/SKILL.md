@@ -80,7 +80,32 @@ agente tiver ferramenta de múltipla escolha, use; senão, liste em texto).
 5. **Claro ou escuro, e qual o tom.**
 6. **Referência.** Algum site que ele goste? Serve para casar com um design system.
 
+7. **A emoção que a pessoa leva embora.** Uma palavra: *calma, desejo, urgência,
+   confiança, pertencimento, alívio.* Se ele não souber responder, derive do setor
+   e confirme numa linha — mas **não pule**. É o requisito que separa um prompt que
+   descreve layout de um que descreve intenção, e vai virar linha explícita na spec.
+
 Se ele já respondeu no pedido, não repita a pergunta.
+
+### Se o briefing vier vago, gere o conceito em vez de pedir mais
+
+Cliente frequentemente não sabe dizer o que quer. Antes de devolver a bola, tente
+as seis técnicas de geração (`${SKILL_DIR}/references/fundamentos-visuais.md` §7) —
+elas produzem ângulo a partir de material pobre:
+
+1. **A verdade escondida, não o assunto óbvio.** Não "clínica boa"; o que a pessoa
+   sente ao evitar sorrir na foto.
+2. **A característica mais forte, empurrada até o fim.** Ache o traço único da marca
+   e deixe ele vazar para tudo — cor, foto, ritmo — em vez de ficar num canto.
+3. **Interpretação literal.** Torne fisicamente real uma expressão que o público já
+   usa. Você não inventa significado, pega emprestado um que já existe.
+4. **Colisão de mundos.** "E se…?" — e se a página de erro fosse um móvel faltando
+   peça?
+5. **O detalhe minúsculo.** Nem tudo precisa de conceito grande.
+6. **Informação não é emoção.** Um dado é triste; o dado com um rosto é pessoal.
+
+Leve **uma** dessas como direção ao usuário antes de escrever o prompt. Direção
+escolhida junto vale mais que prompt longo escrito sozinho.
 
 ## 2. Busque as três camadas no acervo
 
@@ -141,6 +166,11 @@ Build a [escopo] for [marca] — [uma linha do que é] — using [stack exata].
 
 ## Responsive
 [o que muda em cada breakpoint]
+
+## Emotional outcome
+Uma linha em inglês dizendo o que o visitante deve **sentir ao sair** — e, se
+couber, o ritmo que produz isso (impacto → demora → pausa). Sem isso o modelo
+otimiza aparência e a página fica correta e esquecível.
 
 ## Do NOT
 [proibições explícitas — é o que separa favorito de comum]

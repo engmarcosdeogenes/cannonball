@@ -66,6 +66,32 @@ python "${SKILL_DIR}/scripts/tipo.py" --classificar
 
 ---
 
+## 0. Escala não é decoração — é tempo
+
+Antes da mecânica, o que a escala está fazendo: **tamanho, posição, contraste e
+espaçamento são timing.** A manchete funciona de longe; a frase de apoio recompensa
+quem se aproximou. Isso é hierarquia como sequência, não como enfeite
+(`${SKILL_DIR}/references/fundamentos-visuais.md` §3).
+
+Monte em **três degraus**, não em sete:
+
+| Degrau | Papel |
+|---|---|
+| **hook** | o que para o scroll |
+| **secundário** | o que explica, para quem parou |
+| **finisher** | onde a jornada termina — normalmente o CTA |
+
+E a ressalva que quase ninguém faz: **o maior nem sempre é o mais importante.** Em
+página de produto, sim, o produto é o herói. Em página de evento ou serviço, o hook
+pode ser a imagem ou uma frase enquanto a informação que converte (data, preço,
+endereço) é o **menor** elemento — porque quem chegou até ela já decidiu procurar.
+
+Depois de gerar a escala com `--escala`, confira: dá para apontar o hook, o
+secundário e o finisher na tela? Se três coisas disputam o papel de hook, não há
+hook.
+
+---
+
 ## 1. Antes de gostar, confira se pode usar
 
 Sempre o primeiro passo, e quase nunca o que se faz primeiro:

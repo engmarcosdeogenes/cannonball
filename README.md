@@ -387,6 +387,23 @@ Detalhes de cada um em [references/](references/). O Higgsfield é o único que 
 dinheiro do usuário por chamada: [higgsfield.md](references/higgsfield.md) traz a
 disciplina de custo, os modelos e o que a moderação reprova por engano.
 
+## O critério, não só as peças
+
+O acervo responde *"o que eu já tenho pra isso"*. Não responde *"isso deveria
+existir assim"*. [`references/fundamentos-visuais.md`](references/fundamentos-visuais.md)
+cobre o segundo — o vocabulário que decide antes da peça e julga depois dela:
+
+- **as perguntas** que substituem "está bonito?" — o que isso quer que eu sinta, que eu faça, e que decisões me levaram lá
+- **os cinco níveis** — estética, organização, comunicação, persuasão, memória — e o teto de cada um
+- **seis níveis de movimento**, nove tipos de contraste, cinco usos da cor, psicologia de forma
+- **seis técnicas de geração de conceito**, para quando o briefing está pobre
+- **sete testes executáveis**, todos de minutos e sem ferramenta
+
+Os testes são a parte que mais rende, e estão ligados como passo 7.9 da
+`kit-montar`: o passo 8 registra o que **quebrou**; o 7.9 pega o que **não quebra e
+mesmo assim falha**. O melhor deles inverte o instinto — cubra a mensagem
+principal, veja o que sobrou roubando atenção, e **reduza antes de apagar**.
+
 ## Comandos
 
 ```bash
@@ -463,6 +480,10 @@ Exporta o motor (scripts, skills, referências) e o `seed/` das três peças de 
 e **recusa** a exportação se qualquer material privado escapar para o destino.
 
 O que fica de fora: `acervo/`, `_fonte/` e todo artefato de importação em massa.
+
+## Histórico
+
+O que mudou em cada versão, e por quê: [CHANGELOG.md](CHANGELOG.md).
 
 ## Licença
 

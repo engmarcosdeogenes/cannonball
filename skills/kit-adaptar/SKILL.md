@@ -168,6 +168,12 @@ O que muda e o que não muda na adaptação:
 | URLs de asset → caminhos locais + placeholder | a estrutura de estado e a lógica de interação |
 | stack, quando o destino for outro | a seção `Do NOT` — e acrescente as suas |
 
+**Prompt de fora quase nunca declara intenção.** Ele descreve layout, medida e
+efeito, e nada sobre o que a pessoa deve sentir. Ao adaptar, acrescente a linha —
+uma palavra de emoção-alvo e, se couber, o ritmo (impacto → demora → pausa). É a
+diferença entre reproduzir a aparência de um site e reproduzir o que fazia ele
+funcionar. Ver `${SKILL_DIR}/references/fundamentos-visuais.md` §1.
+
 **O prompt adaptado sai em inglês por padrão.** Os prompts que funcionam estão
 em inglês e v0, Lovable e Cursor respondem melhor assim; o relatório em português é
 para você entender, o prompt é para a máquina. Se ele preferir em português, faça —

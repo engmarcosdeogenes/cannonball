@@ -58,6 +58,49 @@ design system sirva à cor — não o contrário.
 
 ---
 
+## 0. A cor faz cinco trabalhos diferentes — decida qual
+
+Antes de escolher matiz, decida **para que a cor serve nesta peça**. São cinco usos,
+e eles pedem paletas diferentes (detalhe em
+`${SKILL_DIR}/references/fundamentos-visuais.md` §5):
+
+| Uso | O que a cor está fazendo |
+|---|---|
+| **atenção** | hierarquia, ritmo (acento repetido com matiz mudando), agrupamento por proximidade, ponto de entrada |
+| **percepção** | profundidade (quente avança, frio recua), peso visual, **valor** |
+| **branding** | conformidade ou fuga da categoria, e recall de memória |
+| **função** | verde aprovado, amarelo atenção, vermelho descartar — lido antes do ícone |
+| **emoção** | o que a pessoa sente antes de interpretar qualquer outra coisa |
+
+Dois desses são contraintuitivos e mudam decisão:
+
+**Peso visual.** Uma figura branca grande pesa **menos** que uma preta pequena.
+Isso permite equilibrar uma composição **sem igualar tamanhos físicos** — útil
+quando a peça do acervo tem proporção que você não quer mexer.
+
+**Valor.** Verde-floresta dessaturado não significa "caro" sozinho; ele ativa
+associações que o luxo treinou. **A chave é a baixa saturação**, que parece
+controlada em vez de pedir atenção. Acento saturado demais denuncia promoção.
+
+### A regra do acento único
+
+O mecanismo da bolinha vermelha de notificação é saliência da cor somada a
+recompensa variável. Traduzido para página: **paleta calma e UM acento urgente**.
+
+> Elementos urgentes demais se cancelam.
+
+Se a peça já tem CTA em acento, badge em acento e destaque em acento, você não tem
+três ênfases — tem zero. O `--paleta` deriva `--kit-acento` e `--kit-glow`
+justamente para você ter onde variar sem multiplicar urgência.
+
+### E case a emoção da cor com a emoção da forma
+
+Se a peça é feita de formas orgânicas e circulares (calma, união, proteção), a
+paleta dessaturada calma reforça; a saturada briga. Se é angulosa e geométrica
+(ordem, estrutura, energia), o inverso. Quase ninguém pensa nisso, e é de graça.
+
+---
+
 ## 1. Pergunte o que determina cor
 
 Não pergunte "que cor você gosta". Cor de site não é preferência, é argumento.

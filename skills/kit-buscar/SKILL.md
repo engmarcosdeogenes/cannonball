@@ -370,6 +370,20 @@ O aviso `[!] N assets externos que podem cair` significa que a peça referencia
 imagens ou vídeos hospedados em `figma.site`, `cloudfront` ou similar. Eles podem
 já ter expirado. Avise o usuário e troque por assets dele.
 
+## O acervo dá a peça, não o critério
+
+O acervo responde *"o que eu tenho pra isso"*. Ele não responde *"isso deveria
+existir assim"*. Quando a escolha entre duas peças igualmente aderentes travar, ou
+quando o usuário disser que está tudo "no automático", o critério está em
+`${SKILL_DIR}/references/fundamentos-visuais.md` — as perguntas do §1, os cinco
+níveis do §2 e os sete testes do §8.
+
+O que mais aparece na prática, e é o risco direto de montar por busca: escolher
+sempre a peça que **cabe na categoria** produz um site que poderia ser de qualquer
+concorrente. É a mesma conformidade que a tag de contagem alta e o `cor.py --vies`
+denunciam por outro caminho. Ao apresentar candidatos, diga qual deles **pertence
+ao cliente** e qual apenas **pertence ao setor** — a diferença costuma decidir.
+
 ## Como apresentar ao usuário
 
 Não despeje a saída bruta. Traga 2 a 4 candidatos, diga em uma linha por que cada um

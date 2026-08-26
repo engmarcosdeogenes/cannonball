@@ -219,7 +219,28 @@ Agrupe numa mensagem só, não interrogue em série:
 4. **Claro ou escuro?**
 5. **Onde implementar.** Caminho do projeto, e se é projeto novo ou já existente.
 
-Se ele já deu tudo isso no pedido, não pergunte de novo. Vá montar.
+Se ele já deu tudo isso no pedido, não pergunte de novo.
+
+### As duas perguntas que ninguém faz, e que decidem o resto
+
+Antes de sair buscando peça, responda estas duas — sozinho, com o que ele já disse.
+Não são perguntas para o usuário, são a leitura que você faz do briefing.
+
+**1. Em que estado emocional a pessoa chega?** Quem procura uma clínica está
+cauteloso e buscando confiança. Quem rola uma marca de streetwear está relaxado,
+navegando. **Se o site não bate com o estado em que ela chega, algo soa errado
+antes de ela ler qualquer coisa** — e nenhuma peça bonita do acervo conserta isso.
+
+**2. Que emoção ela leva embora?** Toda escolha precisa de um motivo, e um deles
+tem que ser este. Escreva a resposta numa palavra antes de escolher paleta ou
+template: *calma, desejo, urgência, confiança, pertencimento, alívio.* É essa
+palavra que julga a peça depois, não o gosto.
+
+Se a marca for nova ou o tom estiver vago, faça o exercício de voz antes de
+qualquer forma (§9 de
+`${SKILL_DIR}/references/fundamentos-visuais.md`): cinco palavras que ela
+**nunca** diria, cinco que usaria demais, e uma frase que ela publicaria. Marca
+que soa ousada não pode receber identidade tímida.
 
 ## 2. Consulte o acervo antes de decidir qualquer coisa
 
@@ -252,6 +273,18 @@ caráter, e ofereça o que existe **junto** com o que teria de ser gerado:
 python "${SKILL_DIR}/scripts/buscar.py" "<setor> hero" --estrutura hero --n 6
 python "${SKILL_DIR}/scripts/buscar.py" --tag video-bg --sem-video   # o que NÃO precisa de vídeo
 ```
+
+Escolher o tipo de hero é escolher **em que nível de movimento** o site opera —
+são seis, e sobem em sofisticação (`${SKILL_DIR}/references/fundamentos-visuais.md`
+§3). Hero tipográfico costuma parar no nível 2 (hierarquia desenha a seta
+invisível); scroll cinemático e WebGL vivem no 4 (movimento implícito); vídeo de
+fundo pode chegar ao 6 se o corte for pensado como **ritmo** — impacto, demora,
+pausa — em vez de loop.
+
+O nível 6 é o que quase ninguém considera e é o que mais rende em site: a página
+de produto da Apple é hero rápido, bloco técnico lento, e espaço em branco de
+descanso. Se o briefing pede sofisticação, **é aí que ela mora**, não em mais
+efeito.
 
 ### Os tipos, e o que cada um cobra
 
@@ -711,6 +744,76 @@ mm.add("(prefers-reduced-motion: reduce)", () => {
 
 **Reduza, não delete.** Tire translate e blur, **mantenha a opacidade**: a página
 ainda resolve em vez de estalar.
+
+## 7.9. A revisão que não quebra nada — e por isso passa batido
+
+O passo 8 registra o que **quebrou**: build, hidratação, contraste reprovado, asset
+morto. Esta revisão cobre o outro lado — o que **não quebra e mesmo assim falha**.
+Nenhum destes dá erro no console. Todos custam conversão.
+
+São sete testes, todos de minutos, nenhum precisa de ferramenta. Detalhe de cada um
+em `${SKILL_DIR}/references/fundamentos-visuais.md` §8. **Rode pelo menos os quatro
+primeiros antes de entregar qualquer página.**
+
+### 1. Troca estética — a peça é sua ou é do setor?
+
+Cubra o logo e imagine trocar por outro cliente do mesmo ramo. Se a página
+funcionaria igual para qualquer clínica, qualquer joalheria, qualquer SaaS, você
+montou **o setor**, não o cliente.
+
+Isto tem consequência direta no acervo: montar só com peça que "cabe na categoria"
+é como o aglomerado se reproduz. Meça com
+`python "${SKILL_DIR}/scripts/cor.py" --vies` e
+`python "${SKILL_DIR}/scripts/buscar.py" --listar tag` — tag de contagem muito alta
+é conformidade de categoria, e conformidade some.
+
+### 2. Três segundos — a ordem de leitura é a que você quis?
+
+Mostre a tela por três segundos, esconda, e pergunte **a sequência**, não os
+detalhes: o que viu primeiro, segundo, terceiro. Sem alguém por perto, faça você
+mesmo com o hero em miniatura.
+
+Se a resposta começa pela coisa errada, a hierarquia falhou. **Se ninguém menciona
+o CTA, ele não guiou** — e é a única coisa que a página tinha que fazer.
+
+### 3. Ladrão de atenção — o teste que inverte o instinto
+
+1. **Cubra a mensagem principal** da seção
+2. Olhe tudo que sobrou: *o que está roubando atenção sem ter merecido?* Badge
+   decorativo, forma de fundo, segunda imagem, linha de apoio que ninguém pediu
+3. Achou o ladrão — **não apague. Reduza primeiro**: menor, mais quieto, menos
+   contraste, mais longe
+4. Só apague se não tiver função nenhuma
+
+> Comunicação mais forte quase nunca vem de dar **mais** ênfase ao que importa.
+> Vem de **tirar o que competia secretamente com ele**.
+
+Vale especialmente depois de compor peças de origens diferentes: cada uma foi
+desenhada para ser o centro da própria tela, e juntas brigam.
+
+### 4. Passo atrás — o caminho do olho está calmo?
+
+Reduza a página para largura de miniatura, ou afaste-se da tela. Se o percurso
+continua equilibrado, acertou. **Se o olho fica quicando, tem coisa errada** —
+mexa em contraste, espaçamento e alinhamento até acalmar. Não adicione nada.
+
+### 5, 6 e 7 — quando a entrega tem identidade
+
+- **Desfoque:** borre ou encolha. A forma básica ainda se sente?
+- **Sem cor:** achate para uma cor só. **Se a ideia morre, a cor estava carregando
+  o conceito** — cor deve melhorar, não resgatar.
+- **Apropriabilidade:** junte 20 peças do mesmo setor, mesmo tamanho, apague os
+  nomes. Quantas trocariam de lugar sem ninguém notar?
+
+### O que fazer com o resultado
+
+Falha nos testes 1 ou 7 é **decisão de projeto** — leve ao usuário, não conserte
+sozinho: pode ser que o briefing peça conformidade mesmo (marca que quer parecer
+com o setor é caso legítimo).
+
+Falha nos testes 2, 3 ou 4 é **execução** — conserte antes de entregar, e se a
+causa foi a peça do acervo (não a sua montagem), **registre como armadilha** no
+passo seguinte.
 
 ## 8. Registre o que deu errado — este passo é obrigatório
 

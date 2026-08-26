@@ -28,7 +28,7 @@ saida_utf8()
 # O motor. Generico, sem material de ninguem dentro.
 PUBLICO = ["scripts", "skills", "references", "seed", "exemplo",
            ".claude-plugin", ".codex-plugin", ".agents", ".github",
-           "README.md", "AGENTS.md", "CLAUDE.md", "LICENSE",
+           "README.md", "AGENTS.md", "CLAUDE.md", "CHANGELOG.md", "LICENSE",
            ".gitignore", ".gitattributes"]
 
 # O acervo do usuario. So na RAIZ: seed/acervo e o exemplo que vai de proposito.
@@ -67,9 +67,34 @@ def autocontidas(destino):
             if not os.path.isdir(origem):
                 continue
             alvo = os.path.join(alvo_skill, nome)
-            shutil.rmtree(alvo, ignore_errors=True)
-            shutil.copytree(origem, alvo, ignore=IGNORA)
+            # MESCLA, nao sobrescreve. Uma skill pode ter referencia PROPRIA na
+            # mesma pasta (kit-otimizar-3d/references/patterns.md); um rmtree
+            # aqui a apagaria em silencio, e o SKILL.md continuaria citando um
+            # arquivo que nao existe mais.
+            shutil.copytree(origem, alvo, ignore=IGNORA, dirs_exist_ok=True)
     print(f"  skills/*/ ← {', '.join(JUNTO)} (cada skill roda sozinha)")
+
+
+def conferir_links(destino):
+    """Cada SKILL.md so pode citar arquivo que viajou junto com ele.
+
+    Existe porque ja aconteceu: copiar references/ da raiz por cima da pasta
+    da skill apagou a referencia propria dela, e o SKILL.md seguiu citando um
+    arquivo ausente sem nada reclamar.
+    """
+    import re
+    quebrados = []
+    pasta = os.path.join(destino, "skills")
+    for skill in sorted(os.listdir(pasta) if os.path.isdir(pasta) else []):
+        md = os.path.join(pasta, skill, "SKILL.md")
+        if not os.path.isfile(md):
+            continue
+        with open(md, encoding="utf-8") as fh:
+            texto = fh.read()
+        for rel in set(re.findall(r"(?:references|scripts|seed)/[\w./-]+\.\w+", texto)):
+            if not os.path.exists(os.path.join(pasta, skill, rel)):
+                quebrados.append(f"skills/{skill}: {rel}")
+    return sorted(quebrados)
 
 
 def main():
@@ -118,6 +143,11 @@ def main():
                 vazou.append(os.path.relpath(os.path.join(raiz, n), destino))
     if vazou:
         sys.exit("VAZOU material privado para o destino:\n  " + "\n  ".join(sorted(set(vazou))))
+
+    quebrados = conferir_links(destino)
+    if quebrados:
+        sys.exit("SKILL.md citando arquivo que não existe no destino:\n  "
+                 + "\n  ".join(quebrados))
 
     print(f"\nmotor exportado para {destino}")
     print("acervo NÃO copiado — ele é seu e fica aqui.")
