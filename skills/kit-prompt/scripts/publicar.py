@@ -13,6 +13,7 @@ apagado, nada sai do git local. Voce continua editando aqui e re-exportando.
 
     python scripts/publicar.py --para ../cannonball-publico
     python scripts/publicar.py --para ../cannonball-publico --listar   # so mostra
+    python scripts/publicar.py --autoteste     # checa a rede contra vazamento
 """
 
 import argparse
@@ -32,13 +33,64 @@ PUBLICO = ["scripts", "skills", "references", "seed", "exemplo",
            ".gitignore", ".gitattributes"]
 
 # O acervo do usuario. So na RAIZ: seed/acervo e o exemplo que vai de proposito.
-NUNCA_NA_RAIZ = ("acervo", "_fonte", "cannonball.config.json", "INSTALAR.md")
+# "sitekit.config.json" e o nome antigo do mesmo arquivo, e ele guarda o caminho
+# absoluto da maquina. Os dois nomes ficam aqui: o repo ainda tem o antigo.
+NUNCA_NA_RAIZ = ("acervo", "_fonte", "_podados",
+                 "cannonball.config.json", "sitekit.config.json", "INSTALAR.md")
 
 # Artefatos de importacao em massa. Carregam material bruto — em lugar nenhum.
 NUNCA_EM_LUGAR_NENHUM = ("_extract", "_enriquecimento", "_lote", "_armadilhas_",
                          "_tags_funcao", "_digest", "_duplicatas")
 
 IGNORA = shutil.ignore_patterns("__pycache__", "*.pyc", ".DS_Store")
+
+
+def vazamentos(destino):
+    """Material privado que chegou ao destino. Lista vazia = pode publicar.
+
+    E a fronteira do script: se ela falhar em silencio, peca de cliente vai para
+    um repositorio publico e ninguem percebe. `seed/acervo` passa de proposito —
+    sao as pecas de exemplo do plugin, e e o caso que um filtro ingenuo quebra.
+    """
+    achados = []
+    for n in os.listdir(destino):
+        if n.startswith(NUNCA_NA_RAIZ):
+            achados.append(n)
+    for raiz, dirs, arqs in os.walk(destino):
+        if ".git" in raiz.replace("\\", "/").split("/"):
+            continue
+        for n in list(dirs) + arqs:
+            if n.startswith(NUNCA_EM_LUGAR_NENHUM):
+                achados.append(os.path.relpath(os.path.join(raiz, n), destino))
+    return sorted(set(achados))
+
+
+def autoteste():
+    import tempfile
+    tmp = tempfile.mkdtemp()
+    try:
+        def toca(*partes):
+            caminho = os.path.join(tmp, *partes)
+            os.makedirs(os.path.dirname(caminho), exist_ok=True)
+            open(caminho, "w").close()
+
+        # motor limpo, com as pecas de exemplo: nao e vazamento
+        toca("scripts", "buscar.py")
+        toca("seed", "acervo", "ui", "kit-mapa", "item.json")
+        toca(".git", "_lote_x.json")            # dentro de .git nao conta
+        assert vazamentos(tmp) == [], vazamentos(tmp)
+
+        toca("acervo", "ui", "peca-de-cliente", "item.json")
+        assert vazamentos(tmp) == ["acervo"], vazamentos(tmp)
+
+        toca("skills", "kit-buscar", "_lote_dzn.json")   # artefato em subpasta
+        assert "skills/kit-buscar/_lote_dzn.json" in vazamentos(tmp), vazamentos(tmp)
+
+        toca("sitekit.config.json")             # caminho absoluto da maquina
+        assert "sitekit.config.json" in vazamentos(tmp), vazamentos(tmp)
+        print("autoteste: ok")
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
 
 
 # O que cada skill precisa carregar para rodar sozinha. Os instaladores de skill
@@ -99,10 +151,18 @@ def conferir_links(destino):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--para", required=True, help="pasta de destino do repo público")
+    ap.add_argument("--para", help="pasta de destino do repo público")
     ap.add_argument("--listar", action="store_true", help="mostra o que iria, sem copiar")
+    ap.add_argument("--autoteste", action="store_true",
+                    help="checa a rede de segurança contra vazamento")
     args = ap.parse_args()
 
+    if args.autoteste:
+        autoteste()
+        return
+
+    if not args.para:
+        ap.error("--para é obrigatório (ou use --autoteste)")
     destino = os.path.abspath(os.path.expanduser(args.para))
     if os.path.abspath(REPO_LOCAL) == destino:
         sys.exit("destino é o próprio repositório de trabalho. Escolha outra pasta.")
@@ -134,15 +194,9 @@ def main():
     autocontidas(destino)
 
     # Rede de seguranca: se algo proibido chegou la, e bug — grite antes do commit.
-    vazou = [n for n in os.listdir(destino) if n.startswith(NUNCA_NA_RAIZ)]
-    for raiz, dirs, arqs in os.walk(destino):
-        if ".git" in raiz.replace("\\", "/").split("/"):
-            continue
-        for n in list(dirs) + arqs:
-            if n.startswith(NUNCA_EM_LUGAR_NENHUM):
-                vazou.append(os.path.relpath(os.path.join(raiz, n), destino))
+    vazou = vazamentos(destino)
     if vazou:
-        sys.exit("VAZOU material privado para o destino:\n  " + "\n  ".join(sorted(set(vazou))))
+        sys.exit("VAZOU material privado para o destino:\n  " + "\n  ".join(vazou))
 
     quebrados = conferir_links(destino)
     if quebrados:

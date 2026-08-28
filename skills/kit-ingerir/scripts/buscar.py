@@ -34,6 +34,33 @@ STOPWORDS = {
 }
 
 
+# Sinonimos PT<->EN: as fichas do acervo sao escritas em portugues, mas titulo e
+# descricao vindos dos registries shadcn sao em ingles. Sem isso, "tabela" nao
+# acha o que "table" acha. Um termo expande para a UNIAO dos grupos em que
+# aparece, o que mantem a assimetria certa: "carrossel" -> {carousel, slider},
+# mas "deslizante" nao puxa carrossel.
+def _carregar_sinonimos():
+    caminho = os.path.join(os.path.dirname(os.path.abspath(__file__)), "sinonimos.json")
+    try:
+        with open(caminho, encoding="utf-8") as fh:
+            grupos = json.load(fh)["grupos"]
+    except Exception:
+        return {}                      # sem o arquivo a busca segue, so sem sinonimo
+    mapa = {}
+    for grupo in grupos:
+        for termo in grupo:
+            mapa.setdefault(termo, set()).update(grupo)
+    return mapa
+
+
+SINONIMOS = _carregar_sinonimos()
+
+
+def variantes(termo):
+    """O termo mais seus sinonimos. Sempre inclui o proprio termo."""
+    return SINONIMOS.get(termo, {termo}) | {termo}
+
+
 def normalizar(texto):
     texto = unicodedata.normalize("NFKD", str(texto).lower())
     texto = "".join(c for c in texto if not unicodedata.combining(c))
@@ -75,13 +102,14 @@ def pontuar(item, termos):
     total, casados = 0.0, 0
     for termo in termos:
         achou = False
+        vars_ = variantes(termo)
         for campo, peso in PESOS.items():
-            if termo in campos[campo]:
+            if any(v in campos[campo] for v in vars_):
                 total += peso
                 achou = True
         if achou:
             casados += 1
-        elif termo in contra:
+        elif any(v in contra for v in vars_):
             # o termo so aparece na contraindicacao: sinal contra, nao a favor
             total -= 2
 

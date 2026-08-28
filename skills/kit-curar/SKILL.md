@@ -2,8 +2,9 @@
 name: kit-curar
 description: >
   Verifica a saúde do acervo pessoal de sites — duplicatas, arquivos vazios, fichas
-  mal escritas que a busca nunca vai encontrar, dependências exigidas e assets
-  externos que já expiraram. Use quando o usuário perguntar o estado do acervo,
+  mal escritas que a busca nunca vai encontrar, dependências exigidas, imports que
+  quebram quando a peça é copiada para outro projeto, e assets externos que já
+  expiraram. Use quando o usuário perguntar o estado do acervo,
   reclamar que a busca não acha o que deveria, quiser limpar ou revisar o que está
   guardado, antes de uma leva grande de ingestão, ou invocar /kit-curar.
 ---
@@ -40,7 +41,7 @@ contraindicação escrita, peças com asset já morto, peças com fonte não ent
 **Acervo vazio não precisa de curadoria.** Se o perfil disser que não há nada,
 mande o usuário para `/kit-ingerir` em vez de rodar o relatório.
 
-O relatório cobre cinco frentes. O que fazer com cada uma:
+As seções abaixo seguem a numeração do relatório. O que fazer com cada uma:
 
 ## 1. Duplicatas e vazios
 
@@ -83,9 +84,28 @@ código válido, mas a página nasce com mídia quebrada.
 antes de ser usado em cliente. Registre isso no `nao_usar_quando` da peça para não
 descobrir de novo no próximo projeto.
 
+## 7. Contrato de cópia — o que quebra o build no destino
+
+A peça sai do acervo **por cópia**, e import relativo que não resolve dentro da pasta
+dela vira `Module not found` no projeto de destino. O erro parece falta de
+dependência npm, não falta de peça — é por isso que custa caro: você procura no lugar
+errado.
+
+O relatório lista cada peça e, quando o alvo existe no acervo sob outro id, imprime
+`está no acervo: ./button -> wml-button`. Duas saídas, nessa ordem:
+
+- **o alvo é peça do acervo** → declare em `precisa_componentes` no `item.json`. A
+  busca passa a imprimir `PRECISA JUNTO:` e o problema acaba na escolha, não na
+  entrega.
+- **o alvo não é peça nenhuma** (um `./icons`, um `../../data` do projeto original)
+  → traga o arquivo para dentro da pasta da peça, ou registre no `nao_usar_quando`.
+
+`--autoteste` verifica o detector em si, sem tocar no acervo.
+
 ## Ordem recomendada
 
 Vazios e duplicatas primeiro (rápido e definitivo), fichas fracas depois (é o que
-mais melhora a busca), assets por último (depende de rede e muda com o tempo).
+mais melhora a busca), contrato de cópia em seguida (a correção é quase sempre uma
+linha no `item.json`), assets por último (depende de rede e muda com o tempo).
 
 Sempre rode `indexar.py` depois de qualquer edição de ficha.

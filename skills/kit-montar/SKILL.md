@@ -856,6 +856,30 @@ Escreva como quem avisa um colega, com o número que importa:
 A busca imprime isso como `ARMADILHA:` em toda consulta futura, e o texto entra no
 índice — quem procurar "contraste" acha as peças que já reprovaram.
 
+### O portão — não feche a montagem sem passar por ele
+
+Este passo é o único do fluxo que não tem resultado visível: ninguém percebe se ele
+foi pulado, e por isso ele é pulado. Hoje **0,7% do acervo tem armadilha registrada**
+— as outras 99% são catálogo comum, e catálogo comum você acha em qualquer registry.
+
+Escolha uma das duas saídas, **em voz alta, para o usuário**:
+
+1. **"Registrei N armadilhas em <peças>"** — e rode `armadilhas.py` + `indexar.py`.
+2. **"Nada quebrou"** — e então diga *o que você conferiu*: build de produção limpo,
+   contraste medido, mobile real, `prefers-reduced-motion`, asset externo
+   respondendo. Sem essa lista, não é "nada quebrou", é "não olhei" — e as duas
+   coisas se parecem demais para ficarem com o mesmo nome.
+
+Não existe terceira saída. Terminar a montagem sem dizer nenhuma das duas é o que
+transformou um acervo de 5 mil peças em 35 peças que aprenderam alguma coisa.
+
+```bash
+python "${SKILL_DIR}/scripts/perfil.py" | grep armadilhas
+```
+
+A linha imprime a cobertura em porcentagem. Se você registrou algo, ela subiu; se
+não subiu, ou você não rodou o `indexar.py`, ou a saída 1 não aconteceu de verdade.
+
 Se nada deu errado, diga isso ao usuário em vez de inventar armadilha. Ficha
 poluída é pior que ficha vazia.
 

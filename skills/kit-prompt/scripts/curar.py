@@ -6,6 +6,7 @@ Saude do acervo: duplicatas, arquivos vazios, fichas fracas, assets que ja caír
     python scripts/curar.py                # relatorio completo
     python scripts/curar.py --assets       # testa as URLs externas (rede, demora)
     python scripts/curar.py --assets --n 20
+    python scripts/curar.py --autoteste   # checa o detector de import quebrado
 """
 
 import argparse
@@ -27,6 +28,91 @@ GENERICO = (
 )
 
 
+
+# --- Contrato de cópia -------------------------------------------------------
+# A peça sai do acervo por cópia. Import relativo que não resolve DENTRO da pasta
+# dela vira "Module not found" no projeto de destino — e o erro fala em módulo
+# faltando, não em peça faltando, que é o que custa a tarde.
+# (armadilha kit-agendamento/exemplo-clinica-vertice)
+
+IMPORT_REL = re.compile(
+    r"""(?:\bfrom|\bimport|\brequire\(|@import)\s*\(?\s*['"](\.{1,2}/[^'"]*)['"]"""
+)
+EXT_CODIGO = (".tsx", ".ts", ".jsx", ".js", ".mjs", ".css")
+EXT_MODULO = ("", ".tsx", ".ts", ".jsx", ".js", ".mjs", ".css",
+              "/index.tsx", "/index.ts", "/index.js")
+EXT_MIDIA = (".jpg", ".jpeg", ".png", ".webp", ".avif", ".svg", ".gif",
+             ".mp4", ".webm", ".glb", ".gltf", ".hdr", ".woff", ".woff2",
+             ".ttf", ".mp3")
+
+
+def imports_quebrados(caminho, declarados):
+    """Imports relativos que não resolvem na pasta da peça nem estão declarados.
+
+    `declarados` é o precisa_componentes: a busca imprime esses como PRECISA JUNTO,
+    então eles não são o problema — o problema é o que ninguém declarou.
+    Mídia fica de fora de propósito: ela mora no projeto de origem (seção 5).
+    """
+    if not os.path.exists(caminho):
+        return []
+    raiz = caminho if os.path.isdir(caminho) else os.path.dirname(caminho)
+    arquivos = []
+    if os.path.isdir(caminho):
+        for r, _, files in os.walk(caminho):
+            arquivos += [os.path.join(r, f) for f in files if f.endswith(EXT_CODIGO)]
+    elif caminho.endswith(EXT_CODIGO):
+        arquivos = [caminho]
+    achados = []
+    for arq in arquivos:
+        try:
+            with open(arq, encoding="utf-8", errors="replace") as fh:
+                texto = fh.read()
+        except OSError:
+            continue
+        for ref in IMPORT_REL.findall(texto):
+            if ref.lower().endswith(EXT_MIDIA):
+                continue
+            alvo = os.path.normpath(os.path.join(os.path.dirname(arq), ref))
+            if any(seg in declarados for seg in alvo.split(os.sep)):
+                continue
+            if any(os.path.exists(alvo + e) for e in EXT_MODULO):
+                continue
+            achados.append((os.path.relpath(arq, raiz), ref))
+    return achados
+
+
+def autoteste():
+    import shutil
+    import tempfile
+    tmp = tempfile.mkdtemp()
+    try:
+        peca = os.path.join(tmp, "peca")
+        os.makedirs(peca)
+        with open(os.path.join(peca, "vizinho.tsx"), "w") as fh:
+            fh.write("export const x = 1\n")
+        with open(os.path.join(peca, "Comp.tsx"), "w") as fh:
+            fh.write(
+                "import { x } from './vizinho'\n"          # resolve: ok
+                "import { y } from './sumiu'\n"            # não resolve: acusa
+                "import { z } from '../kit-calendario/useCalendario'\n"  # declarado: ok
+                "import capa from './capa.png'\n"          # mídia: ignora
+                "import React from 'react'\n"              # npm: ignora
+            )
+        achados = imports_quebrados(peca, {"kit-calendario"})
+        assert [r for _, r in achados] == ["./sumiu"], achados
+        # arquivo único: a pasta dele é o escopo, o mesmo veredito vale
+        achados = imports_quebrados(os.path.join(peca, "Comp.tsx"), {"kit-calendario"})
+        assert [r for _, r in achados] == ["./sumiu"], achados
+        # sem declaração, o import que fugia passa a acusar
+        achados = imports_quebrados(peca, set())
+        assert len(achados) == 2, achados
+        # peça que não é código (prompt.md) não é analisada
+        assert imports_quebrados(os.path.join(peca, "vizinho.tsx"), set()) == []
+        print("autoteste: ok")
+    finally:
+        shutil.rmtree(tmp)
+
+
 def carregar():
     return exigir_indice()
 
@@ -39,7 +125,12 @@ def main():
     p = argparse.ArgumentParser()
     p.add_argument("--assets", action="store_true", help="testa URLs externas (usa rede)")
     p.add_argument("--n", type=int, default=10, help="quantos itens testar com --assets")
+    p.add_argument("--autoteste", action="store_true", help="checa o detector de import quebrado")
     args = p.parse_args()
+
+    if args.autoteste:
+        autoteste()
+        return
 
     itens = carregar()
     print(f"acervo: {len(itens)} itens")
@@ -177,9 +268,39 @@ def main():
     else:
         print("  use --assets para testar se as URLs ainda respondem")
 
+    secao("7. Contrato de cópia — estas quebram o build no projeto de destino")
+    por_origem = {}
+    for i in itens:
+        origem = i.get("arquivo_origem", "") or ""
+        if origem.startswith("@"):
+            por_origem[origem.split("/")[-1]] = i["id"]
+    quebradas = []
+    for i in itens:
+        caminho = os.path.join(RAIZ, i["caminho"].replace("/", os.sep))
+        achados = imports_quebrados(caminho, set(i.get("precisa_componentes") or []))
+        if achados:
+            quebradas.append((i["id"], achados))
+    if quebradas:
+        total = sum(len(a) for _, a in quebradas)
+        print(f"  {len(quebradas)} peças, {total} imports que não resolvem na pasta da peça")
+        print("  o erro no destino diz 'Module not found', não 'falta uma peça' —")
+        print("  declare em precisa_componentes ou traga o arquivo para dentro da peça.")
+        for pid, achados in quebradas[:20]:
+            refs = sorted({r for _, r in achados})
+            dicas = [f"{r} -> {por_origem[os.path.basename(r)]}"
+                     for r in refs if os.path.basename(r) in por_origem]
+            print(f"    {pid}: {', '.join(refs[:6])}{'…' if len(refs) > 6 else ''}")
+            if dicas:
+                print(f"      está no acervo: {', '.join(dicas[:3])}")
+        if len(quebradas) > 20:
+            print(f"    ... e mais {len(quebradas) - 20}")
+    else:
+        print("  todas as peças resolvem os próprios imports")
+
     secao("Resumo")
     print(f"  duplicatas: {len(dups)}   vazios: {len(vazios)}   fichas fracas: {len(fracos)}")
     print(f"  dependentes de asset externo: {len(com_assets)}")
+    print(f"  quebram ao copiar: {len(quebradas)}")
 
 
 if __name__ == "__main__":

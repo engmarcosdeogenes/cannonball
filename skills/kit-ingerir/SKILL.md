@@ -96,6 +96,58 @@ Duas regras para o par `quando_usar` / `nao_usar_quando`:
   vende estabilidade e confiança", "Sem GLB decente o resultado é pobre". Se não
   houver restrição verdadeira, procure melhor: quase toda peça tem uma.
 
+## O que separa ficha forte de ficha fraca
+
+Quatro testes. Aplicados na hora de escrever, custam um minuto; não aplicados, viram
+peça que existe no disco e some da busca — e `curar.py` só consegue dizer que a ficha
+é curta, nunca que ela é vaga.
+
+**1. O mecanismo numa frase.** Escreva antes de qualquer campo: *a coisa que, se
+removida, faz o efeito parar de funcionar.* "O tombo cruza de perfil, e é esse
+instante de quase-sumiço que o olho lê como folha." Se você não consegue escrever a
+frase, tem um visual, não uma peça — e vai acabar guardando outra variação da mesma
+coisa. Teste: troque assunto, paleta e layout de cabeça. Se a frase continua de pé,
+é o mecanismo; se para de fazer sentido, você descreveu a encenação.
+
+**2. Três pilhas — guarde só a primeira.** Toda peça vem misturada:
+
+| pilha | vai pra onde | exemplo |
+|---|---|---|
+| mecanismo | a ficha e o código | a matemática, a ordem obrigatória, o orçamento de frame |
+| encenação | o `resumo`, no máximo | paleta, copy, imagem, marca do projeto de origem |
+| incidental | lugar nenhum | nome de seletor, escolha de fonte, caminho de asset |
+
+Encenação descrita como mecanismo é o que produz `tags` que casam com tudo e não
+selecionam nada.
+
+**3. Toda regra ancorada na falha que ela evita.** "Varie a rotação pra ficar
+natural" é decoração e ninguém consegue testar. "Derive a rotação do ângulo do
+tombo, 90° fora de fase — seno independente lê como wobble ou como bug de easing"
+é verificável. Se você não sabe nomear o que dá errado sem a regra, provavelmente
+nunca testou a alternativa: corte a regra ou vá descobrir. Este é o mesmo material
+de `armadilhas.py`, só que escrito **antes** de tropeçar em vez de depois.
+
+**4. Números, não adjetivos.** "Sutil" é inutilizável. `0.3–0.5` é ponto de partida
+que alguém ajusta. Guarde as constantes que você realmente parou: faixas por camada
+ou estado, duração e easing, tamanho e espaçamento, tetos (`dt` clampado, DPR,
+contagem de instância). Quando o valor veio de medição e não de gosto, diga o que
+foi medido.
+
+## Antes de gravar peça de vários arquivos: ela sobrevive à cópia?
+
+A peça sai do acervo por cópia, e import relativo escrito para o layout do acervo
+quebra no destino. O erro lá diz `Module not found`, que parece falta de dependência
+e não falta de peça — foi assim que a `kit-agendamento` derrubou um build inteiro.
+
+```bash
+python "${SKILL_DIR}/scripts/curar.py" --autoteste   # o detector está de pé
+python "${SKILL_DIR}/scripts/curar.py"               # seção 7 lista quem quebra
+```
+
+Se o import aponta para outra peça do acervo, declare em `precisa_componentes` — a
+busca imprime como `PRECISA JUNTO:` e o problema deixa de existir. Se aponta para um
+arquivo que não é peça nenhuma, traga o arquivo para dentro da pasta.
+
 Depois:
 
 ```bash

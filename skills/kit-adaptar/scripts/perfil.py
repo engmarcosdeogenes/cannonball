@@ -194,8 +194,17 @@ def imprimir(p, ids=frozenset()):
 
     print()
     if p["armadilhas"]:
+        cob = 100.0 * p["com_armadilha"] / max(p["total"], 1)
         print(f"armadilhas registradas: {p['armadilhas']} em {p['com_armadilha']} peças"
+              f" ({cob:.1f}% do acervo)"
               " — é o conhecimento mais caro do acervo, leia antes de prometer a peça")
+        # O numero absoluto soa saudavel em qualquer tamanho de acervo; a
+        # porcentagem e o que denuncia que o ciclo montar -> tropecar -> registrar
+        # parou de girar. Sem ele o acervo e um catalogo como outro qualquer:
+        # catalogo diz o que a peca faz, so o seu acervo sabe onde ela te derrubou.
+        if cob < 5:
+            print(f"[!] {100 - cob:.0f}% das peças nunca registraram armadilha —"
+                  " o passo 8 da /kit-montar é o que alimenta isso")
     if p["assets_mortos"]:
         print(f"[!] {p['assets_mortos']} peças com asset externo já morto")
     if p["fontes_a_substituir"]:

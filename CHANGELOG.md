@@ -5,6 +5,81 @@ Formato: o que mudou e **por quê**, não a lista de commits. Versão segue
 
 ---
 
+## 3.2.0
+
+### A peça que não sobrevive à própria cópia
+
+A `kit-agendamento` já tinha derrubado um build inteiro por isso: o import relativo
+estava escrito para o layout **do acervo**, não para o layout onde a peça vive depois
+de copiada. Virou armadilha, e ficou por lá — como se fosse caso isolado.
+
+Não era. `curar.py` ganhou a **seção 7, contrato de cópia**, e ela achou **165 peças**
+com 333 imports que não resolvem dentro da própria pasta. Todas quebram no projeto de
+destino com `Module not found`, que parece falta de pacote npm e manda você procurar
+no lugar errado.
+
+Em cerca de 85% dos casos o alvo **já está no acervo com outro id**, então o relatório
+imprime o de-para (`./button -> wml-button`) e a correção é uma linha de
+`precisa_componentes` no `item.json`. Mídia fica de fora de propósito: ela mora no
+projeto de origem, e as seções 5 e 6 já cuidam dela.
+
+### Os autotestes — o motor tinha 27 scripts e nenhuma verificação
+
+`publicar.py` é fronteira de segurança: a função dele é **recusar** exportar quando
+material privado escapa para o destino. Ele rodava sem teste nenhum, e falha ali é
+silenciosa — peça de cliente vai para repositório público e ninguém percebe.
+
+A rede virou a função `vazamentos(destino)`, e `--autoteste` exercita os quatro casos.
+Incluindo o que um filtro ingênuo quebra: `seed/acervo/` **não** é vazamento (é a peça
+de exemplo, e ela precisa viajar junto), `acervo/` na raiz é.
+
+Dois furos apareceram no caminho: a lista proibia `cannonball.config.json`, mas o
+arquivo se chama `sitekit.config.json` — nome antigo, e ele guarda o caminho absoluto
+da máquina. E `_podados/` também não estava coberto. Os dois entraram.
+
+`curar.py --autoteste` faz o mesmo pelo detector de import: monta uma peça falsa e
+verifica os cinco casos (resolve, sumiu, declarado, mídia, pacote npm).
+
+### A cobertura de armadilha, dita como porcentagem
+
+`perfil.py` imprimia `85 armadilhas em 35 peças`. Soa saudável — e soa igual num
+acervo de 50 peças e num de 5000. Em porcentagem soa como o que é: **0,7%**.
+
+As outras 99% são catálogo comum, e catálogo comum se acha em qualquer registry. A
+armadilha é a única coisa aqui que nenhum catálogo externo tem: catálogo descreve o
+que a peça faz, só o seu acervo sabe onde ela já te derrubou.
+
+### `kit-montar` — o portão do passo 8
+
+O passo 8 é o único do fluxo **sem resultado visível**: ninguém percebe se foi pulado,
+e por isso era pulado. Agora exige uma de duas saídas, dita em voz alta ao usuário:
+*"registrei N armadilhas"* (com o script rodado), ou *"nada quebrou"* **seguido do que
+foi conferido** — build de produção, contraste, mobile real, `prefers-reduced-motion`,
+asset externo respondendo.
+
+Sem essa lista não é "nada quebrou", é "não olhei", e as duas se pareciam demais para
+continuarem com o mesmo nome. Não existe terceira saída.
+
+### `kit-ingerir` — o que separa ficha forte de ficha fraca
+
+`curar.py` sempre soube dizer que uma ficha é **curta**. Nunca soube dizer que ela é
+**vaga**, que é o defeito que realmente some da busca. Quatro testes novos, aplicados
+na hora de escrever:
+
+1. **O mecanismo numa frase** — a coisa que, removida, faz o efeito parar. Sem ela
+   você tem um visual, não uma peça, e vai guardar outra variação do mesmo.
+2. **Três pilhas** — mecanismo, encenação, incidental. Guarde só a primeira. Encenação
+   descrita como mecanismo produz tag que casa com tudo e não seleciona nada.
+3. **Regra ancorada na falha que evita** — "varie a rotação pra ficar natural" é
+   decoração; "90° fora de fase, senão lê como bug de easing" é verificável. É o
+   mesmo material de `armadilhas.py`, escrito **antes** de tropeçar.
+4. **Números, não adjetivos** — "sutil" é inutilizável, `0.3–0.5` é ponto de partida.
+
+Vem do [`web-technique-to-skill`](https://github.com/MengTo/skills) do Meng To (MIT),
+traduzido para o vocabulário do acervo.
+
+---
+
 ## 3.1.0
 
 ### Critério, não só peças

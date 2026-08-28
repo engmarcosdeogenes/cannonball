@@ -418,7 +418,10 @@ python scripts/ingerir_registro.py --url <url>.json     # componente de registro
 python scripts/ingerir_mcp.py --catalogo <c>.json       # catálogo servido por MCP
 python scripts/lote.py <lote>.json --simular            # muitos projetos de uma vez
 python scripts/receita.py criar <slug> --pecas a,b,c    # salvar uma composição
-python scripts/curar.py --assets                        # saúde, testa URLs
+python scripts/curar.py                                 # saúde do acervo
+python scripts/curar.py --assets                        # testa as URLs externas
+python scripts/curar.py --autoteste                     # checa o detector de import
+python scripts/publicar.py --autoteste                  # checa a rede anti-vazamento
 python scripts/indexar.py          # SEMPRE depois de ingerir ou editar ficha
 ```
 
@@ -461,6 +464,10 @@ claude plugin uninstall cannonball@cannonball && claude plugin install cannonbal
   instala duas vezes. Padronize em `motion`, que é o sucessor.
 - **Componente autorado em Framer** convertido para Next.js deixa resíduo (shim
   `RenderTarget`, JSDoc `@framer*`, `props: any`) e exige Tailwind v4.
+- **A peça sai do acervo por cópia, e import relativo não sabe disso.** Escrito para
+  o layout do acervo, ele quebra no destino com `Module not found` — que parece falta
+  de pacote npm e não falta de peça. `curar.py` tem uma seção só para isso e, quando
+  o alvo já está no acervo com outro id, imprime o de-para.
 - **Asset em bucket temporário morre.** `curar.py --assets` testa de verdade; a busca
   avisa `ASSET MORTO` na hora da escolha, não na entrega.
 - **Fonte de `db.onlinewebfonts.com`** é redistribuição de fonte comercial. Verifique
@@ -484,6 +491,14 @@ O que fica de fora: `acervo/`, `_fonte/` e todo artefato de importação em mass
 ## Histórico
 
 O que mudou em cada versão, e por quê: [CHANGELOG.md](CHANGELOG.md).
+
+## Créditos
+
+A disciplina de ficha da `/kit-ingerir` — mecanismo numa frase, três pilhas, regra
+ancorada na falha que evita, números em vez de adjetivos — vem do
+[`web-technique-to-skill`](https://github.com/MengTo/skills) do **Meng To** (MIT),
+traduzida para o vocabulário do acervo. O repo dele é a metade oposta deste: acervo
+curado de técnica de web design, sem motor de busca.
 
 ## Licença
 

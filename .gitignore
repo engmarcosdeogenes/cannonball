@@ -31,3 +31,9 @@ __pycache__/
 node_modules/
 .next/
 next-env.d.ts
+
+# painel gerado (regenera com scripts/painel.py)
+painel.html
+
+# peças podadas do acervo (material do usuário, esperando confirmação de descarte)
+_podados/
