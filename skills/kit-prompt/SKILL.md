@@ -9,6 +9,7 @@ description: >
   pra esse site", "quero um prompt pra clínica", "preciso de um brief pra passar pro
   v0", ou invocar /kit-prompt. Se ele quiser o site construído aqui e agora, é a
   kit-montar, não esta.
+allowed-tools: Read Glob Bash(python:*) Bash(python3:*)
 ---
 
 # kit-prompt — gerar o prompt, não o site

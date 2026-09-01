@@ -88,6 +88,14 @@ def autoteste():
 
         toca("sitekit.config.json")             # caminho absoluto da maquina
         assert "sitekit.config.json" in vazamentos(tmp), vazamentos(tmp)
+
+        # frontmatter: os seis da spec passam, o resto derruba a instalacao la fora
+        ok = ("---\nname: kit-x\ndescription: >\n  duas linhas\n  de descricao\n"
+              "allowed-tools: Read Bash(python:*)\n---\n# corpo\n")
+        assert frontmatter_fora_da_spec(ok) == [], frontmatter_fora_da_spec(ok)
+        ruim = ok.replace("allowed-tools:", "argument-hint: [slug]\nallowed-tools:")
+        assert frontmatter_fora_da_spec(ruim) == ["argument-hint"], frontmatter_fora_da_spec(ruim)
+        assert frontmatter_fora_da_spec("# sem frontmatter") == ["sem frontmatter"]
         print("autoteste: ok")
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
@@ -125,6 +133,45 @@ def autocontidas(destino):
             # arquivo que nao existe mais.
             shutil.copytree(origem, alvo, ignore=IGNORA, dirs_exist_ok=True)
     print(f"  skills/*/ ← {', '.join(JUNTO)} (cada skill roda sozinha)")
+
+
+# Os seis campos da spec do Agent Skills (agentskills.io). O Claude Code aceita
+# muito mais — argument-hint, context: fork, model, hooks — mas quem instala com
+# `npx skills add` no Codex, Gemini ou Cursor, e quem sobe para a Skills API,
+# valida contra esta lista e **falha com erro duro**, nao ignora o campo extra.
+# Um campo a mais aqui nao degrada: quebra a instalacao na maquina do outro.
+CAMPOS_SPEC = {"name", "description", "license", "compatibility", "metadata",
+               "allowed-tools"}
+
+
+def frontmatter_fora_da_spec(texto):
+    """Chaves de primeiro nivel do frontmatter que a spec nao aceita."""
+    if not texto.startswith("---\n"):
+        return ["sem frontmatter"]
+    fim = texto.find("\n---", 3)
+    if fim < 0:
+        return ["frontmatter nao fechado"]
+    chaves = []
+    for linha in texto[4:fim].split("\n"):
+        if linha[:1] in (" ", "\t", "#", "") or ":" not in linha:
+            continue          # continuacao de bloco, comentario, item de lista
+        chaves.append(linha.split(":", 1)[0].strip())
+    return sorted(set(chaves) - CAMPOS_SPEC)
+
+
+def conferir_frontmatter(destino):
+    """Cada SKILL.md exportado precisa caber na spec, senao nao instala fora daqui."""
+    problemas = []
+    pasta = os.path.join(destino, "skills")
+    for skill in sorted(os.listdir(pasta) if os.path.isdir(pasta) else []):
+        md = os.path.join(pasta, skill, "SKILL.md")
+        if not os.path.isfile(md):
+            continue
+        with open(md, encoding="utf-8") as fh:
+            fora = frontmatter_fora_da_spec(fh.read())
+        if fora:
+            problemas.append(f"skills/{skill}: {', '.join(fora)}")
+    return problemas
 
 
 def conferir_links(destino):
@@ -202,6 +249,12 @@ def main():
     if quebrados:
         sys.exit("SKILL.md citando arquivo que não existe no destino:\n  "
                  + "\n  ".join(quebrados))
+
+    fora = conferir_frontmatter(destino)
+    if fora:
+        sys.exit("frontmatter fora da spec do Agent Skills — não instala em Codex,"
+                 " Gemini nem Cursor:\n  " + "\n  ".join(fora)
+                 + "\n  campos aceitos: " + ", ".join(sorted(CAMPOS_SPEC)))
 
     print(f"\nmotor exportado para {destino}")
     print("acervo NÃO copiado — ele é seu e fica aqui.")

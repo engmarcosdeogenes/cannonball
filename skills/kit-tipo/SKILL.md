@@ -12,6 +12,7 @@ description: >
   sem hierarquia", ou invocar /kit-tipo. Use também, sem esperar o pedido,
   antes de aplicar um design system a um cliente — design system extraído de
   site real nomeia a fonte e quase nunca diz onde carregá-la legalmente.
+allowed-tools: Read Bash(python:*) Bash(python3:*)
 ---
 
 # kit-tipo — decidir o tipo, e poder entregá-lo

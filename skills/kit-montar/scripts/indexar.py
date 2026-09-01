@@ -212,6 +212,17 @@ def main():
         alvo["_busca"] += " " + " ".join(extras).lower()
         n_tf += len(extras)
 
+    # preview: a lacuna estrutural do acervo era guardar texto e nunca imagem.
+    # Sidecar como os outros — quem tem preview.png ao lado da ficha ganha o campo,
+    # quem nao tem segue sem, e nada quebra. Gerado por scripts/capturar.py.
+    n_pv = 0
+    for caminho in _glob.glob(os.path.join(ACERVO, "*", "*", "preview.png")):
+        item_id = os.path.basename(os.path.dirname(caminho))
+        if item_id not in por_id:
+            continue
+        por_id[item_id]["preview"] = os.path.relpath(caminho, RAIZ).replace(os.sep, "/")
+        n_pv += 1
+
     with open(os.path.join(ACERVO, "index.json"), "w", encoding="utf-8", newline="\n") as fh:
         json.dump({"versao": 1, "itens": indice}, fh, ensure_ascii=False, indent=1)
 

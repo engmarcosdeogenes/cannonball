@@ -5,6 +5,73 @@ Formato: o que mudou e **por quê**, não a lista de commits. Versão segue
 
 ---
 
+## 3.3.0
+
+### O acervo deixou de ser só texto
+
+A `kit-buscar` carregava esta frase desde a v1: *"o acervo guarda texto e código,
+**não imagem** — é a lacuna estrutural dele"*. Com 5 mil peças, escolher entre duas
+parecidas significava abrir arquivo.
+
+**Novo: `scripts/capturar.py`.** Peça que roda sozinha ganha `preview.png` ao lado
+da ficha — família `html`, e `animacao`/`template` com `index.html`. São 159 peças
+hoje, e as 130 animações são onde mais dói, porque animação é justamente o que não
+se descreve. O `indexar.py` acha o sidecar sozinho, como já fazia com
+`armadilhas.json` e `tags_funcao.json`; o `painel.py` mostra a miniatura.
+
+Usa o Chrome da máquina em headless. Sem Playwright, sem dependência nova.
+
+**A captura é julgada antes de ser gravada.** PNG válido não prova nada: canvas que
+não inicializou, página que não carregou e loader que nunca saiu geram imagem
+perfeita e inútil. O script mede variação de cor e brilho e recusa com o motivo
+escrito.
+
+Duas coisas medidas nesta máquina, e não copiadas de documentação:
+
+- **macOS captura WebGL certo** em headless (canvas de teste vermelho volta
+  vermelho). No Linux sem GPU a mesma captura volta preta e nada avisa — está
+  registrado na `kit-otimizar-3d`, porque lá é onde alguém concluiria "a cena
+  quebrou" olhando uma imagem preta que só descreve o ambiente de captura.
+- **O Chrome grava o screenshot e não sai.** Com `rAF` rodando ou requisição
+  pendurada ele fica vivo indefinidamente, e um `subprocess.run(timeout=)` mata a
+  captura que já estava pronta no disco. O script espera o **arquivo**, não o
+  processo.
+
+### `kit-montar` 7.9 — verificação virou laço, e olha o render
+
+O passo 7.9 pedia sete testes sobre o que a página comunica, e o agente os aplicava
+lendo o próprio JSX. Ler o código que você acabou de escrever e concluir que a
+hierarquia está boa é a forma mais confiável de aprovar a própria página: você não vê
+o que escreveu, vê o que quis escrever.
+
+Agora captura primeiro, em **dois viewports no mínimo** — metade das falhas de
+hierarquia só existe num dos dois, e a que sobrevive à mudança de largura é a que era
+real. Havendo referência visual (print do cliente, `preview_url` do GetLayers), abre
+lado a lado: "está bom?" vira "onde diverge?", que é respondível.
+
+E fecha o laço: corrigiu, captura de novo e roda os mesmos testes, **no máximo três
+voltas**. Na quarta o problema não é execução, é a decisão que gerou a página.
+
+Padrão emprestado do [VIGA](https://github.com/Fugtemypt123/VIGA) — gerador escreve,
+verificador olha o render de vários pontos de vista e devolve correção acionável.
+
+### `allowed-tools` nas nove skills — e o campo que eu quase pus
+
+Cada skill agora declara o que precisa: `kit-cor` pede `Read` e o Python dela;
+`kit-montar` pede Write e Edit porque constrói site. Menos prompt de permissão no
+meio do trabalho.
+
+`argument-hint` e `context: fork` ficaram de fora **de propósito**. São campos do
+Claude Code, e a spec do Agent Skills aceita seis: `name`, `description`, `license`,
+`compatibility`, `metadata`, `allowed-tools`. Campo extra não é ignorado lá fora —
+`npx skills add` e a Skills API **falham com erro duro**. O plugin promete rodar
+igual em Codex, Gemini CLI e Cursor, e esses dois campos custariam exatamente isso.
+
+`publicar.py` ganhou `conferir_frontmatter()`: recusa exportar se algum SKILL.md
+sair da spec. O erro passa a acontecer aqui, e não na máquina de quem instalou.
+
+---
+
 ## 3.2.0
 
 ### A peça que não sobrevive à própria cópia

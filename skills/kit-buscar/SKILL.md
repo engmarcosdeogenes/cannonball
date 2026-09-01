@@ -14,6 +14,7 @@ description: >
   invocar /kit-buscar. Use TAMBÉM, sem esperar o pedido, antes de construir
   qualquer hero, seção, menu, componente ou landing page: se existe peça pronta
   no acervo, ela vem antes de gerar código novo.
+allowed-tools: Read Glob Bash(python:*) Bash(python3:*)
 ---
 
 # kit-buscar — o que já existe no acervo
@@ -220,9 +221,13 @@ que manda no uso. Ver
 
 Duas coisas que valem sempre, e são de graça:
 
-1. **Preview visual.** O acervo guarda texto e código, **não imagem** — é a lacuna
-   estrutural dele. Um `search_prompts` pelo título do item devolve o `preview_url`.
-   Mostrar vale mais que descrever, principalmente com cliente na frente.
+1. **Preview visual, para a peça que não tem.** O acervo agora guarda imagem das
+   peças que **rodam sozinhas** — família `html`, e `animacao`/`template` com um
+   `index.html` dentro. A busca imprime o caminho do `preview.png` quando existe, e
+   o painel (`python "${SKILL_DIR}/scripts/painel.py" --abrir`) mostra a miniatura.
+   Falta imagem de componente React solto, que precisaria de build; para esses, um
+   `search_prompts` pelo título devolve o `preview_url`. Mostrar vale mais que
+   descrever, principalmente com cliente na frente.
 2. **`get_related_prompts`.** Você sabe quais dos seus prompts funcionaram. Peça os
    parecidos de um que deu certo e o catálogo inteiro vira extensão do acervo,
    sem cota.

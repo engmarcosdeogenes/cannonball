@@ -12,6 +12,7 @@ description: >
   tudo muito no automático", ou invocar /kit-cor. Use também, sem esperar o
   pedido, antes de aplicar um design system a um cliente novo — é ali que a cor
   costuma passar batida.
+allowed-tools: Read Bash(python:*) Bash(python3:*)
 ---
 
 # kit-cor — decidir a cor, em vez de herdar

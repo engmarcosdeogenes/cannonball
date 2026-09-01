@@ -11,6 +11,7 @@ description: >
   3D", "jank on scroll", ou antes de entregar qualquer projeto que carregue
   cena WebGL. Use também, sem esperar o pedido, ao montar seção com three.js
   ou R3F para cliente — máquina de cliente não é máquina de dev.
+allowed-tools: Read Write Edit Glob Grep Bash(python:*) Bash(python3:*)
 ---
 
 # Otimizar cena 3D
@@ -64,7 +65,27 @@ exatamente neste terreno.
 
 ## 0. Audit before you touch anything
 
-Never optimise blind. Establish the baseline:
+Never optimise blind. Establish the baseline.
+
+**First, prove the scene actually renders.** A WebGL canvas that failed to
+initialise looks exactly like one that is merely slow — the page loads, no error
+reaches the console, and every number you collect below describes nothing:
+
+```bash
+python "${SKILL_DIR}/scripts/capturar.py" --url http://localhost:3000 \
+  --saida /tmp/base.png
+```
+
+The script refuses a capture with no colour variation and says why. A refusal here
+means there is nothing to optimise yet — fix the scene first.
+
+One measured caveat, because it decides whether you can trust a screenshot at all:
+on macOS, headless Chrome captures WebGL correctly (verified against a solid-red
+test canvas). On Linux without a GPU, the same capture comes back **black** unless
+SwiftShader is configured, and nothing warns you. Never take a dark capture on
+Linux as evidence the scene is broken — check the platform before you conclude.
+
+Then the numbers:
 
 ```sh
 # what's actually in the scene

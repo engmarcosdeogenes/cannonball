@@ -99,6 +99,11 @@ O símbolo mantém a instalação em dia com o seu clone. Serve para `~/.codex/s
 > **Por que funciona igual em todos.** Nenhum `SKILL.md` usa variável de ambiente de
 > agente. Cada um resolve os próprios scripts a partir da pasta de onde foi lido, o
 > que é informação que todo harness dá. Ver [AGENTS.md](AGENTS.md).
+>
+> O frontmatter fica nos **seis campos da spec** do [Agent Skills](https://agentskills.io)
+> — `name`, `description`, `license`, `compatibility`, `metadata`, `allowed-tools`.
+> Campo fora da spec não é ignorado lá fora: `npx skills add` e a Skills API **falham
+> com erro duro**. `publicar.py` recusa exportar se algum escapar.
 
 O acervo é criado em `~/.cannonball` na primeira vez que uma skill roda, já com as
 três peças de exemplo dentro.
@@ -418,6 +423,9 @@ python scripts/ingerir_registro.py --url <url>.json     # componente de registro
 python scripts/ingerir_mcp.py --catalogo <c>.json       # catálogo servido por MCP
 python scripts/lote.py <lote>.json --simular            # muitos projetos de uma vez
 python scripts/receita.py criar <slug> --pecas a,b,c    # salvar uma composição
+python scripts/capturar.py --tudo                       # preview das peças que rodam sozinhas
+python scripts/capturar.py --url <url> --viewport 390x844 --saida <png>
+python scripts/painel.py --abrir                        # o acervo com miniatura
 python scripts/curar.py                                 # saúde do acervo
 python scripts/curar.py --assets                        # testa as URLs externas
 python scripts/curar.py --autoteste                     # checa o detector de import
@@ -427,6 +435,35 @@ python scripts/indexar.py          # SEMPRE depois de ingerir ou editar ficha
 
 `indexar.py` no fim não é opcional: os scripts gravam no disco, mas a busca lê
 `acervo/index.json`. Sem reindexar, nada muda.
+
+## O preview — o acervo deixou de ser só texto
+
+Peça que **roda sozinha** ganha `preview.png` ao lado da ficha: família `html`, e
+`animacao`/`template` com um `index.html` dentro.
+
+```bash
+python scripts/capturar.py --tudo && python scripts/indexar.py
+python scripts/painel.py --abrir
+```
+
+Usa o Chrome que já está na máquina, em headless — sem Playwright, sem dependência
+nova. Aponte outro binário com `CANNONBALL_CHROME`.
+
+**A captura é julgada antes de ser gravada.** Um PNG válido não prova nada: canvas
+WebGL que não inicializou, página que não carregou e loader que nunca saiu produzem
+imagem perfeita e inútil. O script mede variação de cor e brilho, e **recusa** com o
+motivo escrito. Recusa é informação, não erro.
+
+Componente React solto fica de fora: precisaria de build. São 159 peças capturáveis
+hoje, e as 130 animações são justamente onde "como é que isso fica?" mais dói.
+
+O mesmo script serve à revisão do passo 7.9 da `/kit-montar`, apontado para a página
+que você acabou de construir:
+
+```bash
+python scripts/capturar.py --url http://localhost:3000 --viewport 1440x900 --saida /tmp/d.png
+python scripts/capturar.py --url http://localhost:3000 --viewport 390x844  --saida /tmp/m.png
+```
 
 ## Assets pesados ficam fora
 

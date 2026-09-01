@@ -15,6 +15,7 @@ description: >
   "monta um site de joalheria", "quero uma hero pra imobiliária", "preciso de
   agendamento no site" — ou invocar /kit-montar. Use também quando ele descrever
   um projeto novo e quiser começar a construir.
+allowed-tools: Read Write Edit Glob Grep Bash(python:*) Bash(python3:*)
 ---
 
 # kit-montar — site novo a partir do acervo
@@ -751,9 +752,46 @@ O passo 8 registra o que **quebrou**: build, hidratação, contraste reprovado, 
 morto. Esta revisão cobre o outro lado — o que **não quebra e mesmo assim falha**.
 Nenhum destes dá erro no console. Todos custam conversão.
 
-São sete testes, todos de minutos, nenhum precisa de ferramenta. Detalhe de cada um
-em `${SKILL_DIR}/references/fundamentos-visuais.md` §8. **Rode pelo menos os quatro
+São sete testes, todos de minutos. Detalhe de cada um em
+`${SKILL_DIR}/references/fundamentos-visuais.md` §8. **Rode pelo menos os quatro
 primeiros antes de entregar qualquer página.**
+
+### Antes dos testes: capture. Não julgue pelo código
+
+Ler o próprio JSX e concluir que a hierarquia está boa é a forma mais confiável de
+aprovar a própria página. Você não vê o que escreveu; vê o que quis escrever. Todo
+teste abaixo é sobre o que **aparece**, então capture primeiro e olhe a imagem:
+
+```bash
+python "${SKILL_DIR}/scripts/capturar.py" --url http://localhost:3000 \
+  --viewport 1440x900 --saida /tmp/rev-desktop.png
+python "${SKILL_DIR}/scripts/capturar.py" --url http://localhost:3000 \
+  --viewport 390x844  --saida /tmp/rev-mobile.png
+```
+
+**Dois viewports é o mínimo** — metade das falhas de hierarquia só existe num dos
+dois, e a que sobrevive à mudança de largura é a que era real. Se a página tem
+scroll longo, capture também o meio e o rodapé; o script aceita qualquer URL.
+
+O script **recusa** captura que não presta e diz por quê: página em branco, canvas
+que não inicializou, servidor que não subiu. Recusa é informação — significa que
+não há o que revisar ainda, não que a revisão passou.
+
+Se existe **referência visual** (print que o cliente mandou, `preview_url` do
+GetLayers, o site que ele citou), abra as duas lado a lado. A pergunta deixa de ser
+"está bom?" e vira "onde diverge?", que é respondível.
+
+### A revisão é um laço, não uma passada
+
+Corrigiu alguma coisa? **Capture de novo e rode os mesmos testes.** Correção que
+ninguém olhou depois de aplicada é correção presumida — e mexer em espaçamento para
+consertar o teste 3 costuma quebrar o 2.
+
+**No máximo três voltas.** Na quarta o problema não é execução, é a decisão que
+gerou a página, e isso se resolve conversando, não ajustando pixel.
+
+Para onde vai cada falha — execução ou decisão de projeto — está em
+[O que fazer com o resultado](#o-que-fazer-com-o-resultado), no fim desta seção.
 
 ### 1. Troca estética — a peça é sua ou é do setor?
 

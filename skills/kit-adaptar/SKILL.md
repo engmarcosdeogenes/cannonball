@@ -10,6 +10,7 @@ description: >
   o usuário colar um prompt e perguntar "o que é isso", "que site isso constrói",
   "traduz isso", "adapta esse prompt pra clínica", "que assets eu preciso pra isso",
   ou invocar /kit-adaptar. Se ele quiser um prompt novo do zero, é kit-prompt.
+allowed-tools: Read Glob Grep Bash(python:*) Bash(python3:*)
 ---
 
 # kit-adaptar — entender o prompt que chegou, depois torcer ele pro seu caso

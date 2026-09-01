@@ -11,6 +11,7 @@ description: >
   mostrar um código ou prompt que queira reaproveitar, ou invocar /kit-ingerir.
   Use também, proativamente, quando ele criar algo bom durante um projeto e valer
   a pena guardar para reutilizar.
+allowed-tools: Read Write Edit Glob Bash(python:*) Bash(python3:*)
 ---
 
 # kit-ingerir — alimentar o acervo

@@ -7,6 +7,7 @@ description: >
   expiraram. Use quando o usuário perguntar o estado do acervo,
   reclamar que a busca não acha o que deveria, quiser limpar ou revisar o que está
   guardado, antes de uma leva grande de ingestão, ou invocar /kit-curar.
+allowed-tools: Read Edit Glob Bash(python:*) Bash(python3:*)
 ---
 
 # kit-curar — saúde do acervo

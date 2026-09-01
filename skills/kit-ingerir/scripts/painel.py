@@ -28,7 +28,8 @@ saida_utf8()
 # Sem _busca e sem os campos que a pagina nao mostra: o indice tem 1.7 MB e
 # quase tudo e texto de busca duplicado.
 CAMPOS = ("id", "familia", "titulo", "resumo", "setor", "estrutura", "qualidade",
-          "quando_usar", "nao_usar_quando", "tags", "stack", "fontes", "caminho", "linhas")
+          "quando_usar", "nao_usar_quando", "tags", "stack", "fontes", "caminho", "linhas",
+          "preview")
 
 # As tres partes que o acervo realmente tem. mcp fica de fora das tres porque
 # nao guarda arquivo nenhum: e ficha de catalogo, o codigo vem pelo MCP na hora.
@@ -59,6 +60,8 @@ button.on{background:var(--on);border-color:var(--on);color:#0d0d0f;font-weight:
 button b{font-weight:400;opacity:.55;margin-left:5px;font-variant-numeric:tabular-nums}
 main{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px;padding:20px 24px 60px}
 article{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+img.pv{display:block;width:100%%;aspect-ratio:16/9;object-fit:cover;object-position:top;
+       border-radius:6px;margin:-4px 0 10px;background:#000;border:1px solid var(--line)}
 .top{display:flex;gap:8px;align-items:baseline;margin-bottom:6px}
 .fam{font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--dim);flex:none}
 .tit{font-weight:600;font-size:14px;letter-spacing:-.01em}
@@ -167,6 +170,7 @@ function render(){
                    : `— ${vis.length} de ${ITENS.length}`;
   vazio.hidden = vis.length > 0;
   grade.innerHTML = vis.map(i => `<article data-i="${ITENS.indexOf(i)}">
+    ${i.preview ? `<img class="pv" loading="lazy" src="${i.preview}" alt="">` : ""}
     <div class="top"><span class="fam">${i.familia}</span><span class="tit">${i.titulo}</span></div>
     <p>${i.resumo||""}</p>
     ${i.quando_usar ? `<p class="usar">${i.quando_usar}</p>` : ""}
