@@ -5,6 +5,56 @@ Formato: o que mudou e **por quê**, não a lista de commits. Versão segue
 
 ---
 
+## 3.4.0
+
+### O 3D sabia ficar rápido e não sabia ficar certo
+
+As nove skills tratavam cena WebGL como problema de custo. Nenhuma delas —
+verificado por busca — mencionava `readPixels`, timer query ou depuração de
+shader. Quando a cena renderiza, roda a 60 fps e está **errada**, o acervo não
+tinha nada a dizer, e o conserto no olho é o caminho que todo mundo pega.
+
+**Novo: §15 da `kit-otimizar-3d`, "When the scene is wrong, not slow".** O método
+é o do `shader-debugging` do [vgpu](https://github.com/vercel-labs/vgpu) (MIT),
+reescrito para WebGL2/GLSL: partir a conta em funções puras, renderizar os
+internos num alvo 8×1 com um slot por pixel e um valor por canal, ler de volta com
+`readPixels`, e diferenciar contra uma reimplementação em JS com tolerância
+declarada — `2/255` para valor armazenado em 8 bits, o epsilon do algoritmo para
+grandeza derivada. Mais: despejar **todo** alvo intermediário em PNG, porque num
+encadeamento os números podem estar certos e a imagem errada por um passe que lê o
+anexo trocado. E cinco regras de determinismo, sem as quais a evidência não é
+evidência. O vgpu não virou dependência — é WebGPU/WGSL, e o acervo é three.js.
+
+**Corrigido no §0, que estava publicado errado.** A nota dizia que no Linux a
+captura sai preta "sem SwiftShader configurado". A armadilha é mais afiada: mesmo
+com o software rendering funcionando, o headless captura o canvas preto — é
+limitação upstream, e a saída é navegador *headed* em display virtual (Xvfb), não
+outra flag de adaptador.
+
+**Novo no §0: por que cronômetro em volta do draw não mede nada.** `performance.now()`
+em volta do `drawArrays` mede a submissão; o driver grava comandos, não os executa.
+Passe caro lê ~0 ms e você otimiza a coisa errada. Milissegundo de GPU de verdade
+só com `EXT_disjoint_timer_query_webgl2` — e onde ele não existe (Safari), a
+resposta é "não é mensurável aqui", nunca um cronômetro.
+
+**`capturar.py` ganhou o veto de DOM.** O screenshot volta com sucesso mesmo quando
+o render morreu: o Chrome grava o cartaz de "WebGL is not supported" com o mesmo
+zelo com que gravaria a cena, e cartaz é colorido — medido, o cartaz vermelho passou
+na variação de cor com 5 cores e brilho 68. O `--dump-dom` sai de graça na mesma
+execução e o `erro_na_pagina()` veta depois do pixel. O `<noscript>` e o
+`<template>` saem antes da busca, senão toda cena bem-comportada seria recusada
+pelo próprio fallback que ela carrega escrito.
+
+**O portão do `publicar.py` passou a medir o `description`.** Ele conferia os
+nomes dos campos e não o tamanho — e o teto de 1024 chars da spec também é erro
+duro no `skills add`. Ligado, ele achou na hora uma coisa que já estava publicada:
+a `kit-montar` estava em **1095 chars desde a 3.2.0**. Na sua máquina funcionava;
+quem tentasse instalar por `npx skills add` batia num erro que nós nunca veríamos.
+Aparada para 995. É a mesma lição da v3.3.0: o erro que só aparece na máquina dos
+outros tem que aparecer no export.
+
+---
+
 ## 3.3.0
 
 ### O acervo deixou de ser só texto

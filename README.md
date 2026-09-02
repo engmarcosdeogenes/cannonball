@@ -537,6 +537,13 @@ ancorada na falha que evita, números em vez de adjetivos — vem do
 traduzida para o vocabulário do acervo. O repo dele é a metade oposta deste: acervo
 curado de técnica de web design, sem motor de busca.
 
+O §15 da `/kit-otimizar-3d` — depurar shader extraindo os valores internos como
+pixel, em vez de mexer na constante até a imagem melhorar — vem do
+`shader-debugging` do [**vgpu**](https://github.com/vercel-labs/vgpu) da
+vercel-labs (MIT). O vgpu é WebGPU/WGSL e **não é dependência daqui**: o que foi
+trazido é o método, reescrito para WebGL2/GLSL, mais a correção que ele traz sobre
+captura headless no Linux.
+
 ## Licença
 
 MIT — ver [LICENSE](LICENSE). A licença cobre o **motor**. O que você guardar no

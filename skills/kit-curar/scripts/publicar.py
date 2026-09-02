@@ -96,6 +96,12 @@ def autoteste():
         ruim = ok.replace("allowed-tools:", "argument-hint: [slug]\nallowed-tools:")
         assert frontmatter_fora_da_spec(ruim) == ["argument-hint"], frontmatter_fora_da_spec(ruim)
         assert frontmatter_fora_da_spec("# sem frontmatter") == ["sem frontmatter"]
+        # description acima do teto tambem e erro duro la fora, e nao aparece
+        # aqui: a skill continua funcionando na sua maquina ate alguem instalar
+        longa = ok.replace("  de descricao\n", "".join("  " + "x" * 60 + "\n"
+                                                       for _ in range(20)))
+        fora = frontmatter_fora_da_spec(longa)
+        assert len(fora) == 1 and "teto 1024" in fora[0], fora
         print("autoteste: ok")
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
@@ -142,6 +148,7 @@ def autocontidas(destino):
 # Um campo a mais aqui nao degrada: quebra a instalacao na maquina do outro.
 CAMPOS_SPEC = {"name", "description", "license", "compatibility", "metadata",
                "allowed-tools"}
+TETO_DESCRICAO = 1024   # limite da spec; passar disso e erro duro no `skills add`
 
 
 def frontmatter_fora_da_spec(texto):
@@ -156,7 +163,25 @@ def frontmatter_fora_da_spec(texto):
         if linha[:1] in (" ", "\t", "#", "") or ":" not in linha:
             continue          # continuacao de bloco, comentario, item de lista
         chaves.append(linha.split(":", 1)[0].strip())
-    return sorted(set(chaves) - CAMPOS_SPEC)
+    problemas = sorted(set(chaves) - CAMPOS_SPEC)
+    n = len(" ".join(descricao(texto[4:fim]).split()))
+    if n > TETO_DESCRICAO:
+        problemas.append(f"description com {n} chars (teto {TETO_DESCRICAO})")
+    return problemas
+
+
+def descricao(fm):
+    """O bloco `description: >` inteiro, dobrado nas linhas indentadas."""
+    linhas, dentro, fora = [], False, []
+    for linha in fm.split("\n"):
+        if linha.startswith("description:"):
+            dentro = True
+            fora.append(linha.split(":", 1)[1].strip().lstrip(">|").strip())
+        elif dentro and linha[:1] in (" ", "\t"):
+            linhas.append(linha.strip())
+        elif dentro:
+            break
+    return " ".join(fora + linhas)
 
 
 def conferir_frontmatter(destino):

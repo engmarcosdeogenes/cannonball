@@ -2,19 +2,18 @@
 name: kit-montar
 description: >
   Monta um site novo combinando peças já validadas do acervo pessoal do usuário
-  — templates rodáveis, design systems, componentes, animações, menus, prompts
-  e receitas — em vez de gerar tudo do zero. Se o acervo ainda estiver vazio,
-  constrói do zero e oferece guardar o resultado. Recebe o briefing, decide cor
-  e tipografia antes da identidade, **pergunta que tipo de hero
-  o usuário quer** (tipográfico, editorial, vídeo de fundo, scroll cinemático,
-  WebGL, carrossel) antes de escrever qualquer código, e gera a imagem ou o vídeo
-  do hero pelo Higgsfield quando o cliente não tem material. Escolhe as peças,
-  porta de Vite para Next.js quando preciso, resolve pré-requisitos, dependências
-  e licença de fonte, e salva a composição como receita reutilizável. Use quando o usuário pedir um site, landing page, hero, menu ou
-  seção nova para um cliente ou projeto — "preciso de uma landing pra clínica",
-  "monta um site de joalheria", "quero uma hero pra imobiliária", "preciso de
-  agendamento no site" — ou invocar /kit-montar. Use também quando ele descrever
-  um projeto novo e quiser começar a construir.
+  — templates, design systems, componentes, animações, menus, prompts e receitas
+  — em vez de gerar tudo do zero. Acervo vazio: constrói do zero e oferece
+  guardar. Recebe o briefing, decide cor e tipografia antes da identidade,
+  **pergunta que tipo de hero o usuário quer** (tipográfico, editorial, vídeo de
+  fundo, scroll cinemático, WebGL, carrossel) antes de escrever código, e gera a
+  imagem ou o vídeo do hero pelo Higgsfield quando não há material. Escolhe as
+  peças, porta de Vite para Next.js quando preciso, resolve pré-requisitos,
+  dependências e licença de fonte, e salva a composição como receita. Use quando
+  o usuário pedir um site, landing page, hero, menu ou seção nova — "preciso de
+  uma landing pra clínica", "monta um site de joalheria", "quero uma hero pra
+  imobiliária", "preciso de agendamento no site" — ou invocar /kit-montar. Use
+  também quando ele descrever um projeto novo e quiser começar a construir.
 allowed-tools: Read Write Edit Glob Grep Bash(python:*) Bash(python3:*)
 ---
 

@@ -28,6 +28,7 @@ import contextlib
 import functools
 import http.server
 import os
+import re
 import shutil
 import struct
 import subprocess
@@ -134,6 +135,46 @@ def julgar(caminho):
     return True, "", medidas
 
 
+# Frase canonica que so aparece quando a inicializacao falhou. Tem que ser
+# especifica: "webgl" solto casa com titulo de secao e com comentario de codigo.
+AVISOS = (
+    "webgl is not supported", "webgl não é suportado", "webgl nao e suportado",
+    "does not support webgl", "webgl is not available",
+    "error creating webgl context", "failed to create webgl context",
+    "unable to initialize webgl", "webgpu is not available",
+    "no webgpu adapter", "seu navegador não suporta",
+)
+
+SEM_TEXTO = ("script", "noscript", "template", "style")
+
+
+def erro_na_pagina(dom):
+    """O pixel passou, mas a página está gritando que falhou. Devolve o motivo.
+
+    O screenshot volta com sucesso mesmo quando o render morreu: o Chrome grava
+    o cartaz de erro com o mesmo zelo com que gravaria a cena. E cartaz costuma
+    ser colorido — passa folgado na variação de cor. Por isso o pixel é a
+    asserção de registro e esta checagem é o veto que vem depois dele.
+
+    Descobrimento emprestado do `agent-browser-webgpu` do vgpu (vercel-labs,
+    MIT), que faz o mesmo por fora com grep no innerText.
+
+    O `<noscript>` e o `<template>` saem antes da busca: quase toda cena three.js
+    carrega o cartaz de aviso já escrito no HTML e só o revela quando falha —
+    procurar no markup cru acusaria toda peça bem-comportada.
+    """
+    texto = dom
+    for tag in SEM_TEXTO:
+        texto = re.sub(rf"<{tag}\b.*?</{tag}\s*>", " ", texto,
+                       flags=re.DOTALL | re.IGNORECASE)
+    texto = re.sub(r"<!--.*?-->", " ", texto, flags=re.DOTALL)
+    texto = re.sub(r"<[^>]+>", " ", texto).lower()
+    for frase in AVISOS:
+        if frase in texto:
+            return f"a página renderizou um aviso de falha: “{frase}”"
+    return None
+
+
 def html_da_peca(item):
     caminho = os.path.join(RAIZ, item["caminho"].replace("/", os.sep))
     if caminho.lower().endswith((".html", ".htm")):
@@ -211,19 +252,31 @@ def capturar(chrome, html, destino, espera_ms, tamanho=None):
     e um subprocess.run() com timeout mata a captura que ja estava pronta no
     disco. Medido: a peca `automotive-ai` gravou um PNG bom de 1160 cores e o
     processo continuou de pe ate os 45s do timeout.
+
+    O `--virtual-time-budget` nao e so espera: ele adianta um relogio VIRTUAL,
+    entao duas capturas da mesma peca caem no mesmo instante da animacao e sao
+    comparaveis. Peca que le `Date.now()` ou `Math.random()` sem semente escapa
+    disso e cada captura sai diferente — nao da para versionar preview dela.
+
+    O `--dump-dom` sai de graca na mesma execucao (medido: o DOM impresso ja tem
+    o que o script injetou) e alimenta o `erro_na_pagina`.
     """
     tmp = tempfile.mkdtemp()
     try:
         saida = os.path.join(tmp, "shot.png")
+        dom = os.path.join(tmp, "dom.html")
+        fdom = open(dom, "wb")
         proc = subprocess.Popen(
             [chrome, "--headless=new", "--hide-scrollbars", "--disable-gpu-sandbox",
              "--no-first-run", "--disable-background-networking", "--disable-extensions",
-             f"--screenshot={saida}", "--window-size=%d,%d" % (tamanho or (LARGURA, ALTURA)),
+             f"--screenshot={saida}", "--dump-dom",
+             "--window-size=%d,%d" % (tamanho or (LARGURA, ALTURA)),
              f"--virtual-time-budget={espera_ms}",
              f"--user-data-dir={os.path.join(tmp, 'perfil')}",
              endereco(html)],
-            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+            stdout=fdom, stderr=subprocess.DEVNULL,
         )
+        fdom.close()   # o Chrome ja ficou com o descritor duplicado
         try:
             limite = time.time() + LIMITE_S
             anterior = -1
@@ -242,6 +295,11 @@ def capturar(chrome, html, destino, espera_ms, tamanho=None):
         if not os.path.exists(saida) or os.path.getsize(saida) == 0:
             return False, f"o Chrome não gerou captura em {LIMITE_S}s", {}
         ok, motivo, medidas = julgar(saida)
+        if ok and os.path.exists(dom):
+            with open(dom, encoding="utf-8", errors="replace") as fh:
+                aviso = erro_na_pagina(fh.read())
+            if aviso:
+                return False, aviso, medidas
         if ok:
             shutil.move(saida, destino)
         return ok, motivo, medidas
@@ -300,6 +358,18 @@ def autoteste():
         ok, motivo, medidas = julgar(variada)
         assert ok, (motivo, medidas)
         assert medidas["dim"] == "10x10", medidas
+
+        # o cartaz de erro passa no pixel — colorido, variado — e so o DOM pega
+        cartaz = ('<body style="background:#c00"><h1>WebGL is not supported '
+                  'on this device</h1></body>')
+        assert erro_na_pagina(cartaz), "cartaz de erro passou batido"
+        # e o fallback que toda cena three.js carrega escrito e nunca revela
+        escondido = ('<body><canvas></canvas>'
+                     '<noscript>Your browser does not support WebGL</noscript>'
+                     '<template id="aviso">WebGL is not available</template>'
+                     '<script>// unable to initialize webgl -> mostra o aviso</script>'
+                     '</body>')
+        assert erro_na_pagina(escondido) is None, "peça boa recusada pelo fallback"
         print("autoteste: ok")
     finally:
         shutil.rmtree(tmp, ignore_errors=True)

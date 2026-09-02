@@ -10,7 +10,11 @@ description: >
   mobile", "reduz o custo do WebGL", "o hero 3D está pesado", "optimise the
   3D", "jank on scroll", ou antes de entregar qualquer projeto que carregue
   cena WebGL. Use também, sem esperar o pedido, ao montar seção com three.js
-  ou R3F para cliente — máquina de cliente não é máquina de dev.
+  ou R3F para cliente — máquina de cliente não é máquina de dev. Traz também o
+  método de depurar shader que renderiza ERRADO, e não devagar, extraindo os
+  internos como pixel: use quando disserem "o shader está errado", "a cena
+  aparece torta", "esse efeito não bate com a referência", ou em qualquer bug
+  visual de shader multi-passe.
 allowed-tools: Read Write Edit Glob Grep Bash(python:*) Bash(python3:*)
 ---
 
@@ -76,14 +80,23 @@ python "${SKILL_DIR}/scripts/capturar.py" --url http://localhost:3000 \
   --saida /tmp/base.png
 ```
 
-The script refuses a capture with no colour variation and says why. A refusal here
-means there is nothing to optimise yet — fix the scene first.
+The script refuses a capture with no colour variation, and it also refuses a
+capture whose DOM is showing a "WebGL is not supported" card — that one passes the
+pixel test comfortably (measured: 5 colours, brightness 68 on a red error page),
+which is why the pixels are the assertion of record and the DOM is the veto after
+it. A refusal here means there is nothing to optimise yet — fix the scene first.
 
 One measured caveat, because it decides whether you can trust a screenshot at all:
 on macOS, headless Chrome captures WebGL correctly (verified against a solid-red
-test canvas). On Linux without a GPU, the same capture comes back **black** unless
-SwiftShader is configured, and nothing warns you. Never take a dark capture on
-Linux as evidence the scene is broken — check the platform before you conclude.
+test canvas). On Linux the trap is sharper than "configure a GPU": **even with
+software rendering working, headless Chrome captures the canvas black.** That is
+an upstream limitation, not a missing flag — the render succeeded and the capture
+lies about it. The fix is a *headed* browser on a virtual display (`Xvfb`), not
+another adapter flag. Never take a dark capture on Linux as evidence the scene is
+broken; check the platform first.
+
+If the capture proves the scene renders but renders *wrong*, you have a
+correctness bug, not a performance one — stop here and go to §15.
 
 Then the numbers:
 
@@ -142,6 +155,17 @@ against), `gl.drawingBufferWidth/Height` is the §6 check, and the captured
   meaningless (a desktop measured 14 fps). Only *counted* quantities transfer:
   draw calls, vertices, drawing-buffer pixels, listener counts, program-link
   timestamps, main-thread block duration.
+- **A stopwatch around a draw call measures nothing.** `performance.now()` before
+  and after `drawArrays` / `renderer.render()` times the *submission* — the driver
+  records commands, it does not run them. The GPU is still working when your timer
+  stops, so an expensive pass reads as ~0 ms and you optimise the wrong thing. This
+  is why everything above is a *counted* quantity. To get real GPU milliseconds you
+  need the GPU's own clock: `EXT_disjoint_timer_query_webgl2` (`gl.getExtension`,
+  then a query around the pass; the result lands one or two frames later and you
+  must discard it when `GPU_DISJOINT_EXT` is set). It is unavailable in a lot of
+  browsers, including Safari — when it is missing, say "not measurable here" and
+  fall back to counts, never to a stopwatch. And time a whole **pass**, not one
+  draw: to isolate a suspect, move it into its own pass.
 - To observe a §5 frame **cap** at all, the GPU has to stop being the limiter:
   shrink the viewport to ~320×240 and re-measure. If rAF fires 120×/s and the
   scene draws 26×/s, the cap is working.
@@ -522,6 +546,130 @@ problema de performance"* não serve para nada.
 Se a peça otimizada veio do acervo, a armadilha fica nela. Se você construiu do
 zero, ingira primeiro (`kit-ingerir`) e grave depois.
 
+## 15. When the scene is wrong, not slow — make the pixels carry the numbers
+
+Everything above makes a correct scene cheaper. This section is for the other
+failure: it renders, it is fast, and it is **wrong**. Use it by default for any
+multi-pass or mathematically non-trivial shader, and immediately whenever someone
+reports a visual bug.
+
+> Method adapted from `shader-debugging` in
+> [vercel-labs/vgpu](https://github.com/vercel-labs/vgpu) (MIT). vgpu itself is
+> WebGPU/WGSL and is **not** a dependency here — what transfers is the
+> methodology, rewritten for WebGL2/GLSL.
+
+**Do not iterate by eye.** That is the whole point. In the run this came from, two
+rounds of by-eye fixes changed the image without fixing it, and one extraction pass
+found both root bugs. A shader has no `console.log`; its only output is pixels, so
+make the pixels carry the numbers.
+
+### 1. Split the maths into pure functions
+
+A debug shader must exercise the GLSL that actually ships, or it proves nothing
+about your bug. Keep reused maths in a chunk you can `#include` (or concatenate)
+into both the real shader and the harness; one-use maths can stay beside the entry
+point. Anything the harness needs must be free of bindings — no `uniform` reads,
+no texture samples — so it can be called with literal arguments.
+
+### 2. Render the internals into an 8×1 target and read them back
+
+One pixel per slot, one channel per value. Everything must land in `[0,1]` and
+survive 8-bit quantization:
+
+| Value | Encode | Decode |
+|---|---|---|
+| weight, fresnel, alpha | as-is | `byte / 255` |
+| LOD level | `lod / (levels - 1)` | `byte / 255 * (levels - 1)` |
+| direction / normal | `dir * 0.5 + 0.5` | `(byte / 255 - 0.5) * 2` |
+| unbounded ray | `dir * 0.1 + 0.5` | `(byte / 255 - 0.5) * 10` |
+| distance, thickness | `d * scale`, fixed scale | `byte / 255 / scale` |
+
+```js
+// 8 slots, 4 channels each: 32 numbers out of one draw
+const fbo = gl.createFramebuffer();
+const tex = gl.createTexture();
+gl.bindTexture(gl.TEXTURE_2D, tex);
+gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, 8, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, tex, 0);
+gl.viewport(0, 0, 8, 1);
+gl.drawArrays(gl.TRIANGLES, 0, 3);         // fullscreen triangle, debug fragment shader
+const px = new Uint8Array(8 * 4);
+gl.readPixels(0, 0, 8, 1, gl.RGBA, gl.UNSIGNED_BYTE, px);
+```
+
+```glsl
+// the debug fragment shader: slot index from gl_FragCoord, one meaning per slot
+int slot = int(gl_FragCoord.x);
+if (slot == 0) fragColor = vec4(fresnel(1.5, 0.2), fresnel(1.5, 0.5), fresnel(1.5, 1.0), 1.0);
+else           fragColor = vec4(lodFor(0.0) / 7.0, lodFor(0.5) / 7.0, lodFor(1.0) / 7.0, 1.0);
+```
+
+Give each slot exactly one meaning and comment it. A debug shader nobody can
+decode is worthless the next day.
+
+### 3. Diff against a CPU reference, with a stated tolerance
+
+Reimplement the same maths in JS and compare value by value. The floor is
+**`2 / 255` ≈ 0.0078** — the quantization step of an 8-bit target. Write the
+comparison to JSON (reference, gpu, maxError, tolerance, pass) so the run leaves
+evidence, and exit non-zero when it fails.
+
+`2 / 255` is the floor only for a value **stored** in 8 bits. For a derived or
+iterative quantity — a sphere tracer's hit point after N steps, an accumulated
+integral — the budget comes from the algorithm's own epsilon, not from the texture
+format. Say which one you used.
+
+Need more precision than 8 bits? `EXT_color_buffer_float` lets you read an
+`RGBA32F` attachment directly; without it, add an encode pass into an `RGBA8`
+target and read that.
+
+### 4. Dump every intermediate target, not just the final image
+
+In a multi-pass chain the numbers can all be right and the image still wrong,
+because a pass reads the wrong attachment. Write **each** intermediate to a PNG
+and look at them one by one: every level of the blur pyramid (`pyramid-0.png` …
+`pyramid-7.png`), every G-buffer attachment, then the composite. In the original
+investigation the dumps showed the top blur levels were never selected and that
+exit normals followed the camera ray instead of the refracted one — neither was
+visible in the final image, both were unmistakable in the intermediates.
+
+This is also the answer when §7's composer audit turns up a chain you don't
+understand: dump the targets and you can see which passes render nothing.
+
+### 5. Keep the run deterministic, or it is not evidence
+
+Two runs of the same harness must produce identical bytes. If they don't, fix
+*that* before debugging anything else.
+
+- **No clock.** Pass time in as a fixed constant — never `Date.now()`,
+  `performance.now()` or the ticker's elapsed time.
+- **A fixed number of warmup frames** before the one you read. Always the same
+  number, including on the "after" run.
+- **Jitter by pixel hash, never by frame index.** A stable per-pixel rotation
+  breaks up banding without changing between runs:
+  ```glsl
+  float rot(vec2 p) { return fract(sin(dot(floor(p), vec2(12.9898, 78.233))) * 43758.5453) * 6.2831853; }
+  ```
+- Fixed, small target sizes.
+
+The same rule governs `capturar.py`: its `--virtual-time-budget` advances a
+*virtual* clock, so two captures of the same page land on the same frame of the
+animation and are comparable. A page that reads `Date.now()` or an unseeded
+`Math.random()` escapes that, and its preview can never be a regression baseline.
+
+### Then write it down
+
+Uma raiz encontrada por extração é armadilha de grau `critica` ou `alta` quase
+sempre — ela sobreviveu a uma rodada de conserto no olho. Grave com o número que
+o diff produziu, não com adjetivo:
+
+```bash
+python "${SKILL_DIR}/scripts/armadilhas.py" --add <id-da-peça> \
+  --texto "o valor extraído, o esperado, e onde a conta divergia" \
+  --origem <slug-do-projeto> --grau <critica|alta>
+```
+
 ## What not to do
 
 - Don't drop the scene on mobile wholesale. The scene is the product; tier it.
@@ -533,3 +681,5 @@ zero, ingira primeiro (`kit-ingerir`) e grave depois.
   evaluated). Tree-shake it behind a dev flag.
 - Don't leave `console.log`, `Stats`, or an `OrbitControls` you disabled in the
   production path.
+- Don't fix a shader by eye. Changing a constant until the image looks better
+  moves the bug; it does not find it (§15).
