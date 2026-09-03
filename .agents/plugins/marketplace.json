@@ -20,7 +20,8 @@
         "./skills/kit-curar",
         "./skills/kit-otimizar-3d",
         "./skills/kit-cor",
-        "./skills/kit-tipo"
+        "./skills/kit-tipo",
+        "./skills/lab"
       ]
     }
   ]

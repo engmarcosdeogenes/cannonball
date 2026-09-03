@@ -19,7 +19,8 @@
         "./skills/kit-curar",
         "./skills/kit-otimizar-3d",
         "./skills/kit-cor",
-        "./skills/kit-tipo"
+        "./skills/kit-tipo",
+        "./skills/lab"
       ],
       "description": "Busca no seu acervo antes de gerar do zero. O acervo começa vazio e cresce a cada ingestão — templates rodáveis, design systems, componentes, animações, efeitos WebGL e prompts de página. Monta sites combinando peças, porta de Vite para Next.js, decide cor e tipografia com contraste e licença de fonte medidos, otimiza cena 3D para celular e salva composições como receitas reutilizáveis.",
       "category": "design"

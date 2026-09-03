@@ -9,7 +9,7 @@ de volta, antes de qualquer coisa ser gerada outra vez.
 
 ![Claude Code](https://img.shields.io/badge/Claude_Code-plugin-D97757?style=flat-square)
 ![Python 3](https://img.shields.io/badge/Python_3-sem_dependência-3776AB?style=flat-square)
-![9 skills](https://img.shields.io/badge/skills-9-4bb3a5?style=flat-square)
+![10 skills](https://img.shields.io/badge/skills-10-4bb3a5?style=flat-square)
 ![MIT](https://img.shields.io/badge/licença-MIT-555?style=flat-square)
 
 </div>
@@ -52,8 +52,9 @@ armadilhas registradas e os avisos de saúde. Toda skill começa por aí.
 
 ## Instalar
 
-Requisito único: **Python 3**. Os scripts importam só a biblioteca padrão — sem
-`pip install`, sem `node_modules`, sem rede.
+As nove skills originais exigem apenas **Python 3** e usam a biblioteca padrão. A
+skill opcional `/lab` exige também **Node.js 22.13+**; ela instala suas dependências
+npm somente quando o usuário abre o laboratório pela primeira vez.
 
 ### Claude Code
 
@@ -78,11 +79,11 @@ npx skills add harebeats/cannonball -g
 ```bash
 npx skills add harebeats/cannonball -g -a codex
 npx skills add harebeats/cannonball -g -a gemini
-npx skills list harebeats/cannonball        # ver as 9 antes de instalar
+npx skills list harebeats/cannonball        # ver as 10 antes de instalar
 ```
 
 **Cada pasta em `skills/` é autocontida** — carrega o `SKILL.md`, o `scripts/` que ele
-chama, o `references/` que cita e o `seed/`. Você pode instalar as nove ou só a que
+chama, o `references/` que cita e o `seed/`. Você pode instalar as dez ou só a que
 interessa: `kit-cor` e `kit-tipo`, por exemplo, resolvem paleta e licença de fonte sem
 depender de acervo nenhum.
 
@@ -158,6 +159,16 @@ Aponte para uma pasta versionada num repositório **privado** seu: o acervo é m
 seu e de terceiros, e não é para redistribuir.
 
 ## Por onde começar
+
+Para instalar e abrir o laboratório 3D local, use apenas:
+
+```text
+/lab
+```
+
+Na primeira execução, o comando instala o aplicativo em `~/.cannonball/3d-lab`.
+Depois inicia o Lab e abre `http://localhost:5555`. O pacote público não inclui o
+corpus usado no desenvolvimento, pesos do SF3D, outputs ou credenciais.
 
 O plugin não impõe ordem — as skills disparam sozinhas quando o assunto aparece. Mas
 existe uma sequência que dá resultado muito melhor, e ela sai adaptada ao estado do
@@ -266,10 +277,11 @@ de cinco jeitos. Nenhum dá erro. Todos viraram armadilha nas peças de origem.
 | `kit-cor` | "define a paleta", "está tudo no automático" — decide a cor **antes** do design system |
 | `kit-tipo` | "que fonte usar", "essa fonte é paga?" — licença, substituto livre, par e escala |
 | `kit-otimizar-3d` | "a cena trava no celular" — e antes de entregar qualquer projeto com WebGL |
+| `lab` | `/lab` — instala e abre o Cannonball 3D Lab em `localhost:5555` |
 | `kit-ingerir` | "guarda isso" — arquivo, texto colado, projeto inteiro, registro shadcn ou MCP |
 | `kit-curar` | saúde do acervo: duplicatas, fichas fracas, assets mortos |
 
-**Quatro delas funcionam com o acervo vazio**: `kit-cor`, `kit-tipo`,
+**Cinco delas funcionam com o acervo vazio**: `lab`, `kit-cor`, `kit-tipo`,
 `kit-otimizar-3d` e `kit-adaptar` não dependem de peça guardada. As outras degradam
 com uma frase em vez de quebrar, e mandam você ingerir.
 
