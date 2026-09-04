@@ -77,6 +77,13 @@ def read_pid() -> int | None:
 def process_alive(pid: int | None) -> bool:
     if not pid:
         return False
+    if os.name == "nt":
+        # os.kill(pid, 0) nao e suportado no Windows (signal 0 e idioma POSIX) —
+        # em vez de OSError, alguns builds levantam SystemError, e o processo
+        # fica "vivo" pra sempre porque o except errado nunca pega.
+        result = subprocess.run(["tasklist", "/FI", f"PID eq {pid}", "/NH"],
+                                 capture_output=True, text=True)
+        return str(pid) in result.stdout
     try:
         os.kill(pid, 0)
         return True
