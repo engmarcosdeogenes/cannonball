@@ -61,7 +61,10 @@ def vazamentos(destino):
             continue
         for n in list(dirs) + arqs:
             if n.startswith(NUNCA_EM_LUGAR_NENHUM):
-                achados.append(os.path.relpath(os.path.join(raiz, n), destino))
+                # Forward slash sempre, mesmo no Windows: e o formato que os
+                # testes e os manifestos do repo usam.
+                relativo = os.path.relpath(os.path.join(raiz, n), destino)
+                achados.append(relativo.replace(os.sep, "/"))
     return sorted(set(achados))
 
 

@@ -5,6 +5,72 @@ Formato: o que mudou e **por quê**, não a lista de commits. Versão segue
 
 ---
 
+## 3.5.1 — o Lab
+
+### `/lab` — laboratório 3D local, fora do contrato de "só Python"
+
+Toda skill do acervo até aqui rodava só com `Python 3`, biblioteca padrão, zero
+`pip`, zero `node_modules`, zero rede — é o que o `CLAUDE.md` promete para quem
+instala o plugin. Gerar e inspecionar objeto 3D não cabe nesse orçamento: viewer
+GLB/glTF/OBJ/HDR/EXR/KTX2 quer WebGL de verdade, e Stable Fast 3D quer PyTorch.
+Em vez de forçar isso nas outras nove skills, o Lab é a décima, opcional, e paga
+o preço sozinha — Node.js 22.13+ só quando `/lab` é chamado pela primeira vez.
+
+`skills/lab/scripts/lab.py` é o launcher: idempotente, copia o app para
+`~/.cannonball/3d-lab` (nunca dentro da skill instalada — mesma regra do
+acervo, cache de plugin some na atualização), instala dependências com
+`npm ci`, sobe o servidor em `127.0.0.1:5555` e só devolve controle quando o
+health-check responde de verdade — não quando o processo apenas nasceu.
+`status`, `stop` e `--reinstalar` (preserva a instalação anterior como backup)
+ficam atrás de pedido explícito; `/lab` sozinho nunca troca de porta nem
+escuta fora de loopback.
+
+Três formas de gerar, cada uma com o próprio portão:
+
+- **Claude Code planeja a cena** — decompõe um prompt em objetos com forma,
+  material, escala real e orçamento de triângulo, autenticado pela assinatura
+  do próprio usuário. Sem chave, sem custo extra.
+- **Stable Fast 3D roda local** (imagem → objeto) — pesos oficiais em
+  `safetensors` (sem exec arbitrário no load), licença aceita no Hugging Face
+  antes do primeiro uso, ~15 GB conferidos por `df` antes de instalar. Cada
+  job exige `confirmedLocalCompute: true` explícito do lado do bridge.
+- **Meshy** (opcional, pago) — só dispara com `MESHY_API_KEY` configurada e
+  `confirmedExternalCost: true` por chamada; sem os dois, o bridge recusa
+  antes de gastar crédito de ninguém.
+
+O `generation-bridge.mjs` que liga essas três coisas trata todo caminho vindo
+do navegador como hostil: CORS restrito a `localhost`/`127.0.0.1`, todo
+`/files/` e `/web-files/` resolvido e conferido contra o diretório raiz antes
+de servir (nada de `../` escapando de `outputs/`), imagem de entrada validada
+por assinatura `data:` e limitada a 10 MB, corpo de requisição limitado a
+16 MB, estado do job salvo por `tmp` + `rename` atômico. A exportação para
+Three.js/R3F só aceita `modelUrl` que aponte pra dentro do próprio bridge —
+um resultado de fora não entra no pacote final.
+
+### Dois ajustes feitos antes do lançamento
+
+A skill pedia só `Bash(python3:*)` em `allowed-tools` e chamava `python3` nos
+cinco comandos — as outras nove skills do repo sempre pedem os dois
+(`Bash(python:*) Bash(python3:*)`) e chamam por `python`, porque nem todo
+Windows tem o alias `python3` no PATH. `/lab` era a única exceção; agora segue
+a mesma convenção.
+
+O runtime do Lab embarca `wrangler` (a stack de dev do `vinext` emula o
+runtime da Cloudflare mesmo rodando 100% local) — e `wrangler` manda telemetria
+anônima por padrão. Isso contradiz a promessa de "não coleta tokens" do
+anúncio. `WRANGLER_SEND_METRICS=false` entrou no `vite.config.ts`, desligado
+por padrão, sem depender do usuário saber que a opção existe.
+
+### O que ainda fica de fora desta beta
+
+Instalação automática de Stable Fast 3D (`setup-sf3d.sh`) e de KTX2
+(`setup-ktx.py --instalar`) só têm caminho testado em bash + macOS. No
+Windows e no Linux o viewer, a análise e o planejamento por Claude funcionam
+normalmente; geração local por imagem e compressão KTX2 exigem, por ora,
+instalar os binários oficiais na mão — o launcher aponta onde.
+
+---
+
 ## 3.4.0
 
 ### O 3D sabia ficar rápido e não sabia ficar certo

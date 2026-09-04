@@ -1,7 +1,7 @@
 ---
 name: lab
 description: Instala, inicia, abre, verifica ou encerra o Cannonball 3D Lab local. Use quando o usuário invocar /lab ou pedir para abrir o laboratório 3D do Cannonball em localhost:5555.
-allowed-tools: Bash(python3:*)
+allowed-tools: Bash(python:*) Bash(python3:*)
 ---
 
 # Cannonball 3D Lab
@@ -14,7 +14,7 @@ da pasta que contém este `SKILL.md`; não presuma onde o plugin foi instalado.
 Quando a solicitação for somente `/lab`, execute imediatamente:
 
 ```bash
-python3 "${SKILL_DIR}/scripts/lab.py"
+python "${SKILL_DIR}/scripts/lab.py"
 ```
 
 Esse comando é idempotente: na primeira execução copia o aplicativo para
@@ -31,10 +31,10 @@ launcher. Nunca exponha o servidor além de `127.0.0.1`.
 Use somente quando o usuário pedir expressamente:
 
 ```bash
-python3 "${SKILL_DIR}/scripts/lab.py" status
-python3 "${SKILL_DIR}/scripts/lab.py" stop
-python3 "${SKILL_DIR}/scripts/lab.py" install
-python3 "${SKILL_DIR}/scripts/lab.py" start --reinstalar
+python "${SKILL_DIR}/scripts/lab.py" status
+python "${SKILL_DIR}/scripts/lab.py" stop
+python "${SKILL_DIR}/scripts/lab.py" install
+python "${SKILL_DIR}/scripts/lab.py" start --reinstalar
 ```
 
 Uma reinstalação preserva a pasta anterior como backup. O pacote não inclui corpus,

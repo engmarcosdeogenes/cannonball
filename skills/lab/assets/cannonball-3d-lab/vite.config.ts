@@ -80,6 +80,7 @@ const localBindingConfig = {
 
 export default defineConfig(async () => {
   process.env.WRANGLER_WRITE_LOGS ??= "false";
+  process.env.WRANGLER_SEND_METRICS ??= "false";
   const { cloudflare } = await import("@cloudflare/vite-plugin");
   return {
     server: { watch: { ignored: ["**/.local-models/**", "**/assets-3d/**", "**/outputs/**"] } },
